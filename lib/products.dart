@@ -25,6 +25,8 @@ class _listPageState extends State<listPage> {
   final FirebaseMessaging _fcm = FirebaseMessaging();
   String catVal;
   String subcatVal;
+  String catVal2;
+  String subcatVal2;
   String text;
   String title;
   String imgurl;
@@ -440,13 +442,13 @@ class _listPageState extends State<listPage> {
                   );
                   switch (sortVal){
                     case 1: {
-                      if(catVal!=null && subcatVal==null)
+                      if(catVal2!=null && subcatVal2==null)
                       {
                         setState(() {
                         data=catSortData("ProdCost", false);
                       });
                       }
-                      else if(subcatVal!=null){
+                      else if(subcatVal2!=null){
                         setState(() {
                           data=subCatSortData("ProdCost", false);
                         });
@@ -458,13 +460,13 @@ class _listPageState extends State<listPage> {
                       break;
                     }
                     case 2:{
-                      if(catVal!=null && subcatVal==null)
+                      if(catVal2!=null && subcatVal2==null)
                       {
                         setState(() {
                         data=catSortData("ProdCost", true);
                       });
                       }
-                      else if(subcatVal!=null){
+                      else if(subcatVal2!=null){
                         setState(() {
                           data=subCatSortData("ProdCost", true);
                         });
@@ -475,13 +477,13 @@ class _listPageState extends State<listPage> {
                       });
                       break;
                     }
-                    case 3:{if(catVal!=null && subcatVal==null)
+                    case 3:{if(catVal2!=null && subcatVal2==null)
                       {
                         setState(() {
                         data=catSortData("ProdName", false);
                       });
                       }
-                      else if(subcatVal!=null){
+                      else if(subcatVal2!=null){
                         setState(() {
                           data=subCatSortData("ProdName", false);
                         });
@@ -492,13 +494,13 @@ class _listPageState extends State<listPage> {
                       });
                       break;
                     }
-                    case 4:{if(catVal!=null && subcatVal==null)
+                    case 4:{if(catVal2!=null && subcatVal2==null)
                       {
                         setState(() {
                         data=catSortData("ProdName", true);
                       });
                       }
-                      else if(subcatVal!=null){
+                      else if(subcatVal2!=null){
                         setState(() {
                           data=subCatSortData("ProdName", true);
                         });
@@ -534,20 +536,24 @@ class _listPageState extends State<listPage> {
                   if(catVal=="All"){
                     setState(() {
                       catVal=null;
+                      catVal2=null;
                       subcatVal=null;
+                      subcatVal2=null;
                       data=getData();
                     });
                   }
                   else if(catVal!=null){
                   setState(() {
+                    catVal2=catVal;
                     data=categorySort(catVal);
                     subcatVal=null;
+                    subcatVal2=null;
                     subCatMenu(catVal);
                   });
                   }
                }
                else if(index == 2){
-                    if (catVal==null)
+                    if (catVal2==null)
                     {
                       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Select a category first.", 
                       style: TextStyle(color: Colors.white)), 
@@ -561,14 +567,15 @@ class _listPageState extends State<listPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     color: Colors.black,
                     context: context,
-                    position: catVal=="Fashion" ? RelativeRect.fromLTRB(38.0, 435.0, 20.0, 0.0) : RelativeRect.fromLTRB(38.0, 515.0, 20.0, 0.0), //38.0, 555.0, 10.0, 0.0
-                    items: subCatMenu(catVal),
+                    position: catVal2=="Fashion" ? RelativeRect.fromLTRB(38.0, 435.0, 20.0, 0.0) : RelativeRect.fromLTRB(38.0, 515.0, 20.0, 0.0), //38.0, 555.0, 10.0, 0.0
+                    items: subCatMenu(catVal2),
                     elevation: 0
                   );
                   if(subcatVal!=null)
                   {
+                    subcatVal2=subcatVal;
                     setState(() {
-                      data=subCategorySort(subcatVal);
+                      data=subCategorySort(subcatVal2);
                     });
                   }
                   }
