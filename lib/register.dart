@@ -131,7 +131,7 @@ class _registerState extends State<register> {
       if (user!=null)
       {
         
-          getUserInfo(); //TODO parameter 
+          getUserInfo();
       }
       else
       {
