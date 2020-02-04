@@ -9,6 +9,7 @@ import 'myaccount.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'addNotification.dart';
 import 'myNotifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class listPage extends StatefulWidget {
 
@@ -109,6 +110,12 @@ class _listPageState extends State<listPage> {
      });
      Navigator.pop(context);
    }
+
+  logOut() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     prefs.setString('email', null);
+     Navigator.push(context, MaterialPageRoute(builder: (context) => login()));
+  }
    
   Future data;
   Future getData() async {
@@ -255,7 +262,7 @@ class _listPageState extends State<listPage> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login())),
+                        onTap: () => logOut(),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.orange,

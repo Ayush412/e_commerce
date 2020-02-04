@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'register.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class login extends StatefulWidget {
@@ -62,12 +63,18 @@ class _loginState extends State<login> {
 
   Future getUserInfo() async{
    await Firestore.instance.collection('users').document(usercontroller.text).get().then((DocumentSnapshot mysnap){
+     saveData();
      if(mysnap.data!=null)
       Navigator.push(context, MaterialPageRoute(builder: (context) => listPage(post: mysnap)));
      else
       Navigator.push(context, MaterialPageRoute(builder: (context) => getUserData(email: usercontroller.text)));
-   });
-    
+   }); 
+  }
+  
+  saveData() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     prefs.setString('email', usercontroller.text);
+     print(prefs.getString('email'));
   }
 
   Future checklogin() async{

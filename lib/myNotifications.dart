@@ -71,7 +71,6 @@ class _myNotificationsState extends State<myNotifications> {
   }
 
   navigateToDetail(DocumentSnapshot post){
-   // Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> notifDescription(post, widget.userpost, widget.email)));
    Navigator.push(context, PageTransition(type: PageTransitionType.downToUp, duration:Duration(milliseconds: 250), child: notifDescription(post, widget.userpost, widget.email)));
   }
 

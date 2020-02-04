@@ -5,6 +5,7 @@ import 'package:badges/badges.dart';
 import 'mycart.dart'; 
 import 'products.dart';
 import 'login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class myAccount extends StatefulWidget {
   int counter;
@@ -192,7 +193,7 @@ class _myAccountState extends State<myAccount > {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login())),
+                        onTap: () => logOut(),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.orange,
@@ -205,6 +206,12 @@ class _myAccountState extends State<myAccount > {
         )
       ) 
     );
+  }
+
+  logOut() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     prefs.setString('email', null);
+     Navigator.push(context, MaterialPageRoute(builder: (context) => login()));
   }
 
  @override

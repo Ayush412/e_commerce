@@ -4,6 +4,7 @@ import 'dart:async';
 import 'login.dart';
 import 'products.dart';
 import 'myaccount.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class mycart extends StatefulWidget {
   int counter;
@@ -31,6 +32,12 @@ class _mycartState extends State<mycart> {
     setState(() {
       total=total+(quantity*cost);
     });
+  }
+
+   logOut() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     prefs.setString('email', null);
+     Navigator.push(context, MaterialPageRoute(builder: (context) => login()));
   }
 
   Future data;
@@ -148,7 +155,7 @@ class _mycartState extends State<mycart> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login())),
+                        onTap: () => logOut(),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.orange,
