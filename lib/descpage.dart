@@ -3,15 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'add2cart.dart';
-import 'login.dart';
 import 'mycart.dart';
+import 'globalVariable.dart' as globals;
 
 class prodDescription extends StatefulWidget {
 int counter;
 final String email;
 final DocumentSnapshot post;
 final DocumentSnapshot userpost;
-prodDescription({this.post, this.email, this.counter, this.userpost});
+String tag;
+prodDescription({this.post, this.email, this.counter, this.userpost, this.tag});
 
   @override
   _prodDescriptionState createState() => _prodDescriptionState();
@@ -84,9 +85,10 @@ class _prodDescriptionState extends State<prodDescription> {
      _timer.cancel();
    }
 
-   void goBack(){
+   goBack(){
      setState(() {
        oplevel=0;
+       globals.globalVariable.play=true;
      });
      Navigator.pop(context);
    }
@@ -94,97 +96,85 @@ class _prodDescriptionState extends State<prodDescription> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-          onWillPop: () => showDialog(
-        context: context,
-        builder: (c) => AlertDialog(
-          title: Text('Alert'),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-          content: Text('Logout?'),
-          actions: <Widget>[
-            FlatButton(child: Text('Yes'), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login()))),
-            FlatButton(child: Text('No'), onPressed: () => Navigator.pop(c, false))
-          ],
-        )
-      ),
+          onWillPop: () => goBack(),
           child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          key:_scaffoldKey,
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            centerTitle: true,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(25))),
-            toolbarOpacity: 0.5,
-            elevation: 0,
-            actions: <Widget>[
-              _shoppingCartBadge()
-            ],
-            backgroundColor: Colors.black,
-            leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack()),
-            title: Text(widget.post.data['ProdName'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
-          ),
-          body: Center(
-            child: Column(children: <Widget>[
-              Hero(
-                tag: widget.post.documentID,
-                child: Image.network(widget.post.data['imgurl'], height:300, width:300)
-              ),
-              Padding(padding: EdgeInsets.only(top:15),
-              child: Container(
-                  height: 200,
-                  width:380,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-                  color: Colors.black),
-                  child:
-              AnimatedOpacity(
-                duration: Duration(milliseconds: 500),
-                opacity: oplevel,
-                 child: Column(children: <Widget>[
-                 Padding(padding: EdgeInsets.only(top:18),
-                                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (val) {
-                        return Icon(
-                        val < widget.post.data['Rate'] ? Icons.star : Icons.star_border,
-                        color: Colors.white,
-                        );
-                        }),
-                      ),
-                 ),
-              Padding(padding: const EdgeInsets.only(top:15, bottom: 8),
-              child: Text('Category: ${widget.post.data['Category']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
-              Padding(padding: const EdgeInsets.all(8),
-              child: Text('Product: ${widget.post.data['ProdName']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
-              Padding(padding: const EdgeInsets.all(8),
-              child: Text('Cost: QR. ${widget.post.data['ProdCost'].toString()}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
-              Padding(padding: const EdgeInsets.only(top: 5),
-              child: Text(stock>0 ? ('In stock') : 'Out of stock!', style: TextStyle(color: stock>0 ? Colors.green : Colors.red, fontWeight: FontWeight.bold, fontSize: 18))),
-                  ]),
-                )
-            )),
-            Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: Container(
-                        alignment: Alignment.bottomCenter,
-                        width:260,
-                        height:60,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(30),
-                          splashColor: Colors.grey,
-                          onTap: () => stock>0 ? addSnackBar(): emptySnackBar(),
-                          child: Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        color: stock>0 ? Colors.green : Colors.orange,
-                        child: Center(child: Text(stock>0 ? 'Add To Cart' : 'Check back later', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 26),))
-                    ),
-                      ),
-                  ),
-            )
-            ],
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            key:_scaffoldKey,
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              centerTitle: true,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(25))),
+              toolbarOpacity: 0.5,
+              elevation: 0,
+              actions: <Widget>[
+                _shoppingCartBadge()
+              ],
+              backgroundColor: Colors.black,
+              leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack()),
+              title: Text(widget.post.data['ProdName'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
             ),
+            body: Center(
+              child: Column(children: <Widget>[
+                Hero(
+                  tag: widget.tag.contains('card') ? 'card${widget.post.documentID}' : '${widget.post.documentID}',
+                  child: Image.network(widget.post.data['imgurl'], height:300, width:300)
+                ),
+                Padding(padding: EdgeInsets.only(top:15),
+                child: Container(
+                    height: 200,
+                    width:380,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
+                    color: Colors.black),
+                    child:
+                AnimatedOpacity(
+                  duration: Duration(milliseconds: 500),
+                  opacity: oplevel,
+                   child: Column(children: <Widget>[
+                   Padding(padding: EdgeInsets.only(top:18),
+                                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (val) {
+                          return Icon(
+                          val < widget.post.data['Rate'] ? Icons.star : Icons.star_border,
+                          color: Colors.white,
+                          );
+                          }),
+                        ),
+                   ),
+                Padding(padding: const EdgeInsets.only(top:15, bottom: 8),
+                child: Text('Category: ${widget.post.data['Category']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
+                Padding(padding: const EdgeInsets.all(8),
+                child: Text('Product: ${widget.post.data['ProdName']}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
+                Padding(padding: const EdgeInsets.all(8),
+                child: Text('Cost: QR. ${widget.post.data['ProdCost'].toString()}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
+                Padding(padding: const EdgeInsets.only(top: 5),
+                child: Text(stock>0 ? ('In stock') : 'Out of stock!', style: TextStyle(color: stock>0 ? Colors.green : Colors.red, fontWeight: FontWeight.bold, fontSize: 18))),
+                    ]),
+                  )
+              )),
+              Padding(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: Container(
+                          alignment: Alignment.bottomCenter,
+                          width:260,
+                          height:60,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(30),
+                            splashColor: Colors.grey,
+                            onTap: () => stock>0 ? addSnackBar(): emptySnackBar(),
+                            child: Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          color: stock>0 ? Colors.green : Colors.orange,
+                          child: Center(child: Text(stock>0 ? 'Add To Cart' : 'Check back later', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 26),))
+                      ),
+                        ),
+                    ),
+              )
+              ],
+              ),
+            )
           )
-        )
-        
       ),
     );
   }

@@ -201,7 +201,6 @@ class _loginState extends State<login> {
                     focusNode: node2,
                     obscureText: true,
                     decoration: new InputDecoration(
-                      //hintText: 'Password',
                       labelText: 'Password',
                       prefixIcon: Icon(Icons.lock, color: Colors.black,),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
