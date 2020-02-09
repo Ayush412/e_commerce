@@ -203,97 +203,109 @@ class _mycartState extends State<mycart> {
             title: Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
           ),
           drawer: myDrawer(),
-          body: Container(
-          child: FutureBuilder(
-            future: data,
-            builder: (_, snapshot){
-              if(snapshot.connectionState == ConnectionState.waiting)
-              return Center(child: CircularProgressIndicator());
-              else{
-                if(snapshot.data.length>0){
-                  return Stack(
-                             children: <Widget>[
-                             ListView.builder(
-                            padding: const EdgeInsets.all(4.0),
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (_, index){
-                              return Container(height: 150,
-                                child: Card(
-                                  elevation: 1,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                                  child: Center(
-                                  child: Stack(
-                                    children: <Widget>[
-                                     ListTile(
-                                      leading: Image.network(snapshot.data[index].data['imgurl'],height: 100, width: 100),
-                                      title: Text(snapshot.data[index].data['ProdName'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                      subtitle: Text('QR. ${snapshot.data[index].data['ProdCost']}', style: TextStyle(fontSize: 16)),
-                                     ),
-                                     Positioned(
-                                       left:252,
-                                       top:21,
-                                       child: IconButton(icon: Icon(Icons.remove_circle_outline),
-                                       onPressed: () => snapshot.data[index].data['Quantity']>1 ? remVal(snapshot.data[index], snapshot.data[index].data['Quantity']) : null,
+          body: Stack(
+                children: <Widget>[
+                Container(color: Colors.white),
+                Padding(
+                padding: const EdgeInsets.only(top:10),
+                child: Container( decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),)
+              ),
+               Padding(
+                 padding: const EdgeInsets.only(top: 15, left: 5, right: 5),
+                 child: Container(
+                 child: FutureBuilder(
+                  future: data,
+                  builder: (_, snapshot){
+                    if(snapshot.connectionState == ConnectionState.waiting)
+                    return Center(child: CircularProgressIndicator());
+                    else{
+                      if(snapshot.data.length>0){
+                        return Stack(
+                                   children: <Widget>[
+                                   ListView.builder(
+                                  padding: const EdgeInsets.all(4.0),
+                                  itemCount: snapshot.data.length,
+                                  itemBuilder: (_, index){
+                                    return Container(height: 150,
+                                      child: Card(
+                                        elevation: 1,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                        child: Center(
+                                        child: Stack(
+                                          children: <Widget>[
+                                           ListTile(
+                                            leading: Image.network(snapshot.data[index].data['imgurl'],height: 100, width: 100),
+                                            title: Text(snapshot.data[index].data['ProdName'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                            subtitle: Text('QR. ${snapshot.data[index].data['ProdCost']}', style: TextStyle(fontSize: 16)),
+                                           ),
+                                           Positioned(
+                                             left:252,
+                                             top:21,
+                                             child: IconButton(icon: Icon(Icons.remove_circle_outline),
+                                             onPressed: () => snapshot.data[index].data['Quantity']>1 ? remVal(snapshot.data[index], snapshot.data[index].data['Quantity']) : null,
+                                              ),
+                                           ),
+                                           Positioned(
+                                             left:300,
+                                             top:38,
+                                             child: Text(snapshot.data[index].data["Quantity"].toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),)
+                                            ),
+                                            Positioned(
+                                             left:311,
+                                             top:21,
+                                             child: IconButton(icon: Icon(Icons.add_circle_outline),
+                                             onPressed: () => addVal(snapshot.data[index], snapshot.data[index].data['Quantity']),
+                                             ),
+                                            ),
+                                            Positioned(
+                                             left:340,
+                                             top:38,
+                                             child: IconButton(icon: Icon(Icons.delete),
+                                             onPressed: () => delProd(snapshot.data[index]),
+                                             color: Colors.red,
+                                             ),
+                                            )
+                                          ]
                                         ),
-                                     ),
-                                     Positioned(
-                                       left:300,
-                                       top:38,
-                                       child: Text(snapshot.data[index].data["Quantity"].toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),)
-                                      ),
-                                      Positioned(
-                                       left:311,
-                                       top:21,
-                                       child: IconButton(icon: Icon(Icons.add_circle_outline),
-                                       onPressed: () => addVal(snapshot.data[index], snapshot.data[index].data['Quantity']),
-                                       ),
-                                      ),
-                                      Positioned(
-                                       left:340,
-                                       top:-15,
-                                       child: IconButton(icon: Icon(Icons.delete),
-                                       onPressed: () => delProd(snapshot.data[index]),
-                                       color: Colors.red,
-                                       ),
                                       )
-                                    ]
-                                  ),
-                                )
-                              ),
-                            );
-                         }
-                    ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                         child: Padding(
-                           padding: const EdgeInsets.only(bottom:10.0),
-                           child: Container(
-                        alignment: Alignment.bottomCenter,
-                        width:250,
-                        height:60,
-                        child: Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        color: Colors.green,
-                        child: Center(child: Text('TOTAL: QR. $total', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),))
-                            )),
-                         ),
-                  )
-                ],
-                  );
-                }
-                else{
-                  return Stack(children: <Widget>[
-                    Center(child: Image(image: AssetImage('empty2.png'),)),
-                    Center(
-                      child: Padding(padding: EdgeInsets.only(top:190),
-                      child: Text("There's nothing here!", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),)),
-                    )
-                  ],);
-                }
-              }
-            },
+                                    ),
+                                  );
+                               }
+                          ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                               child: Padding(
+                                 padding: const EdgeInsets.only(bottom:10.0),
+                                 child: Container(
+                              alignment: Alignment.bottomCenter,
+                              width:250,
+                              height:60,
+                              child: Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              color: Colors.green,
+                              child: Center(child: Text('TOTAL: QR. $total', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),))
+                                  )),
+                               ),
+                        )
+                      ],
+                        );
+                      }
+                      else{
+                        return Stack(children: <Widget>[
+                          Center(child: Image(image: AssetImage('empty2.png'),)),
+                          Center(
+                            child: Padding(padding: EdgeInsets.only(top:190),
+                            child: Text("There's nothing here!", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),)),
+                          )
+                        ],);
+                      }
+                    }
+                  },
+              )
+          ),
+               ),
+        ],
           )
-        )
         )
           )
     );

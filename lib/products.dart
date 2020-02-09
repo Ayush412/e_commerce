@@ -77,7 +77,7 @@ class _listPageState extends State<listPage> {
         },
   );
     data=getData();
-    topdata=getTopData();
+    topdata=getTopData(catVal2);
     _timer = new Timer(const Duration(milliseconds: 1100), () {
       setState(() {
         oplevel=1;
@@ -129,9 +129,17 @@ class _listPageState extends State<listPage> {
   }
 
   Future topdata;
-  Future getTopData() async {
+  Future getTopData(String category) async {
+    if (category==null)
+    {
     QuerySnapshot qs = await Firestore.instance.collection('products').where('Rate', isGreaterThanOrEqualTo: 4).getDocuments();
+      return qs.documents;
+    }
+    else
+    {
+    QuerySnapshot qs = await Firestore.instance.collection('products').where('Rate', isGreaterThanOrEqualTo: 4).where('Category', isEqualTo: '$category').getDocuments();
     return qs.documents;
+    }
   }
 
   Future searchData(String name) async{
@@ -358,7 +366,9 @@ class _listPageState extends State<listPage> {
               IconButton(icon: Icon(Icons.refresh),
               onPressed: () => setState((){
                   data=getData();
-                  topdata=getTopData();
+                  catVal2=null;
+                  subcatVal2=null;
+                  topdata=getTopData(catVal2);
                   globals.globalVariable.play=true;
                   subcatVal=null;
                   catVal=null;
@@ -372,7 +382,7 @@ class _listPageState extends State<listPage> {
             ],
             backgroundColor: Colors.black,
             leading: IconButton(icon: Icon(Icons.settings, color: Colors.white),onPressed: () => _scaffoldKey.currentState.openDrawer()),
-            title: Text('Products', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
+            title: Text(catVal2==null ? 'All Products' : '$catVal2', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
           ),
           drawer: myDrawer(),
           body: Stack(
@@ -380,8 +390,12 @@ class _listPageState extends State<listPage> {
               Container(color: Colors.white),
               Padding(
                 padding: const EdgeInsets.only(top:10),
+                child: Container( decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),)
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:51),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
+                  decoration: BoxDecoration(image: DecorationImage(image: AssetImage('$catVal2.jpg'), fit: BoxFit.fill), borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
                 )
               ),
               Padding(
@@ -409,11 +423,12 @@ class _listPageState extends State<listPage> {
                         Padding(
                           padding: const EdgeInsets.only(top:30.0),
                           child: Container(
-                                color: Colors.black,
+                                decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(20)),
                                 width: 320,
                                 child: GestureDetector(
                                       onTap: () => navigateToDetail(topsnap.data[index], 'card${topsnap.data[index].documentID}'),
                                       child: Card(
+                                        elevation: 0,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                       child: Stack(
                                         children: <Widget>[
@@ -658,12 +673,14 @@ class _listPageState extends State<listPage> {
                         subcatVal=null;
                         subcatVal2=null;
                         data=getData();
+                        topdata=getTopData(catVal2);
                       });
                     }
                     else if(catVal!=null){
                     setState(() {
                       catVal2=catVal;
-                      data=categorySort(catVal);
+                      data=categorySort(catVal2);
+                      topdata=getTopData(catVal2);
                       subcatVal=null;
                       subcatVal2=null;
                       subCatMenu(catVal);

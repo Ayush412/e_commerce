@@ -5,7 +5,6 @@ import 'login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'products.dart';
-import 'getuserdata.dart';
 import 'package:page_transition/page_transition.dart';
 
 void main() {
@@ -67,7 +66,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
           home: Container(
           color: Colors.white,
-          child: Image.asset('assets/logo2.png', height: 100,)
+          child: Image.asset('assets/logo2(noName).png', height: 100,)
       ),
     );
   }
