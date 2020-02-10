@@ -11,7 +11,6 @@ import 'addNotification.dart';
 import 'myNotifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'globalVariable.dart' as globals;
 
 class listPage extends StatefulWidget {
 
@@ -36,12 +35,10 @@ class _listPageState extends State<listPage> {
   Timer _timer;
   int _counter=0;
   int _notifCount=0;
-  int _current=0;
 
   @override
   void initState() { 
     super.initState();
-    globals.globalVariable.play=true;
     //_fcm.getToken().then((token) => print(token));
     _fcm.subscribeToTopic('e-commerce');
     _fcm.configure(
@@ -174,11 +171,8 @@ class _listPageState extends State<listPage> {
   }
 
   navigateToDetail(DocumentSnapshot post, String tag){
-    setState(() {
-      globals.globalVariable.play=false;
-    });
     String email = widget.post.documentID.toString();
-    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag,)));
+    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag)));
   }
 
   Widget _shoppingCartBadge() {
@@ -369,7 +363,6 @@ class _listPageState extends State<listPage> {
                   catVal2=null;
                   subcatVal2=null;
                   topdata=getTopData(catVal2);
-                  globals.globalVariable.play=true;
                   subcatVal=null;
                   catVal=null;
                   _notifCount=0;
@@ -411,14 +404,8 @@ class _listPageState extends State<listPage> {
                     else
                     {
                       return CarouselSlider.builder(
-                        autoPlay: globals.globalVariable.play,
+                        autoPlay: false,
                         itemCount: topsnap.data.length,
-                        pauseAutoPlayOnTouch: Duration(seconds: 10),
-                        onPageChanged: (index) {
-                            setState(() {
-                              _current = index;
-                            });
-                          },
                         itemBuilder: (BuildContext context, int index) =>
                         Padding(
                           padding: const EdgeInsets.only(top:30.0),

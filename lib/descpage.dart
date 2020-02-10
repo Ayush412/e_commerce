@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'add2cart.dart';
 import 'mycart.dart';
-import 'globalVariable.dart' as globals;
 
 class prodDescription extends StatefulWidget {
 int counter;
@@ -88,7 +87,6 @@ class _prodDescriptionState extends State<prodDescription> {
    goBack(){
      setState(() {
        oplevel=0;
-       globals.globalVariable.play=true;
      });
      Navigator.pop(context);
    }
