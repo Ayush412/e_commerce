@@ -388,7 +388,7 @@ class _listPageState extends State<listPage> {
               Padding(
                 padding: const EdgeInsets.only(top:51),
                 child: Container(
-                  decoration: BoxDecoration(image: DecorationImage(image: AssetImage('$catVal2.jpg'), fit: BoxFit.fill), borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
+                  decoration: BoxDecoration(image: DecorationImage(image: AssetImage('$catVal2.jpg'), fit: BoxFit.cover), borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
                 )
               ),
               Padding(
@@ -455,7 +455,7 @@ class _listPageState extends State<listPage> {
               ),
               Positioned(
                 top: 17,
-                left:15,
+                left: 15,
                 child: Text("Most Popular Items", style: TextStyle(color: Colors.white, fontSize:22, fontWeight: FontWeight.w400),)
               ),
               Padding(

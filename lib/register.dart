@@ -130,7 +130,6 @@ class _registerState extends State<register> {
     finally{
       if (user!=null)
       {
-        
           getUserInfo();
       }
       else

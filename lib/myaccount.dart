@@ -1,4 +1,6 @@
-import 'package:e_commerce/getuserdata.dart';
+import 'dart:async';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:badges/badges.dart';
@@ -19,7 +21,10 @@ class _myAccountState extends State<myAccount > {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>(); 
   bool visible = false;
   bool enabled = false;
-  String dropdownvalue;
+  static double lat;
+  static double lng;
+  double newlat;
+  double newlng;
   TextEditingController fnamecontroller;
   TextEditingController lnamecontroller;
   TextEditingController mobcontroller;
@@ -28,39 +33,104 @@ class _myAccountState extends State<myAccount > {
   FocusNode node2 = FocusNode();
   FocusNode node3 = FocusNode();
   FocusNode node4 = FocusNode();
-  
+
+  GoogleMap map;
+
+  void _onCameraMove(CameraPosition position){
+    CameraPosition newPosition = CameraPosition(target: position.target);
+    setState(() {
+      print(newPosition.target);
+      newlat=newPosition.target.latitude;
+      newlng=newPosition.target.longitude;
+      });
+  }
+
+  showMap(){
+    Completer<GoogleMapController> _controller2 = Completer();
+    return showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: Text('Select Delivery Location'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          content: Container(
+            height: 400, width: 300,
+            child: Stack(
+                  children: <Widget>[
+                  GoogleMap(
+                    onMapCreated: (GoogleMapController controller){
+                      _controller2.complete(controller);
+                    },
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    onCameraMove: _onCameraMove,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(lat, lng),
+                      zoom: 18.0
+                    ),
+                  ),
+                  Align(
+                      alignment: Alignment.topCenter,    
+                      child: Padding(
+                      padding: const EdgeInsets.only(top: 165), 
+                      child: Icon(Icons.location_on, size:38)
+                      ),
+                  )
+              ],
+            )
+          ),
+          actions: <Widget>[
+            FlatButton(child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), onPressed: () => updateMap()),
+            FlatButton(child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), onPressed: () => Navigator.pop(c, false))
+          ],
+         )
+    );
+  }
+
+  Future <void> updateMap() async {
+     setState((){
+      visible = false;
+     });
+    lat=newlat;
+    lng=newlng;
+    Navigator.pop(context);
+    final GoogleMapController controller = await _controller1.future;
+    controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (lat, lng), 18.5));
+  }
+
   Future getUserInfo() async{
     setState(() {
       visible=true;
     });
    await Firestore.instance.collection('users').document(widget.post.documentID).get().then((DocumentSnapshot mysnap){
      setState(() {
-       dropdownvalue = '${mysnap.data['City']}';
     fnamecontroller = TextEditingController(text: '${mysnap.data['FName']}');
     lnamecontroller = TextEditingController(text: '${mysnap.data['LName']}');
     mobcontroller = TextEditingController(text: '${mysnap.data['Mob'].toString()}');
     addresscontroller = TextEditingController(text: '${mysnap.data['Address']}');
+    lat = mysnap.data['Latitude'];
+    lng = mysnap.data['Longitude'];
      });
    });
    setState(() {
      visible=false;
    });
+   final GoogleMapController controller = await _controller1.future;
+  controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (lat, lng), 18.5));
   }
 
   @override
   void initState() { 
+    setState(() {
+      enabled=false;
+    });
     super.initState();
-    dropdownvalue = '${widget.post.data['City']}';
-    fnamecontroller = TextEditingController(text: '${widget.post.data['FName']}');
-    lnamecontroller = TextEditingController(text: '${widget.post.data['LName']}');
-    mobcontroller = TextEditingController(text: '${widget.post.data['Mob'].toString()}');
-    addresscontroller = TextEditingController(text: '${widget.post.data['Address']}');
-    getCartCount();
-    
+    getUserInfo();
+    getCartCount();   
+    print(lat);
   }
 
   checkDetails(){
-    if (fnamecontroller.text!=null && lnamecontroller.text!=null && addresscontroller.text!=null && mobcontroller.text!=null && dropdownvalue!='--City--')
+    if (fnamecontroller.text!=null && lnamecontroller.text!=null && addresscontroller.text!=null && mobcontroller.text!=null)
     addUserDetails();
     else
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Please fill all fields.", 
@@ -72,13 +142,20 @@ class _myAccountState extends State<myAccount > {
   }
 
   Future addUserDetails() async {
+    setState(() {
+      visible=true;
+    });
     await Firestore.instance.collection('users').document(widget.post.documentID)
     .setData({
       'FName': fnamecontroller.text,
       'LName': lnamecontroller.text,
       'Address': addresscontroller.text,
       'Mob': int.parse(mobcontroller.text),
-      'City': dropdownvalue
+      'Latitude': lat,
+      'Longitude': lng
+    });
+    setState(() {
+      visible=false;
     });
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Changes saved.", 
           style: TextStyle(color: Colors.white)), 
@@ -112,10 +189,6 @@ class _myAccountState extends State<myAccount > {
       widget.counter= _docCount.length;
     });
    }
-
-    List <String> cityName = [
-    '--City--', 'Doha', 'Al Khor', 'Dukhan', 'Mesaieed'
-    ] ;
 
   Widget myDrawer(){
     return ClipRRect(
@@ -214,6 +287,7 @@ class _myAccountState extends State<myAccount > {
      Navigator.push(context, MaterialPageRoute(builder: (context) => login()));
   }
 
+ Completer<GoogleMapController> _controller1 = Completer();
  @override
   Widget build(BuildContext context) {
     return WillPopScope(   
@@ -240,6 +314,7 @@ class _myAccountState extends State<myAccount > {
             onPressed: () => setState((){
                 getUserInfo();
                 getCartCount();
+                print(lng);
             })),
           _shoppingCartBadge()
         ],
@@ -250,7 +325,7 @@ class _myAccountState extends State<myAccount > {
                   child: Center(
             child: Column(children: <Widget>[
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:15),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -271,7 +346,7 @@ class _myAccountState extends State<myAccount > {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:10),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -292,7 +367,7 @@ class _myAccountState extends State<myAccount > {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:10),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -314,7 +389,7 @@ class _myAccountState extends State<myAccount > {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:10),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -335,66 +410,81 @@ class _myAccountState extends State<myAccount > {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      width: 280,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(width: 1.0, style: BorderStyle.solid, color: Colors.grey),
-                          borderRadius: BorderRadius.all(Radius.circular(32.0)),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left:10.0, right:3.0),
-                        child: DropdownButtonHideUnderline(
-                             child: DropdownButton<String>(
-                             hint: Text(dropdownvalue),
-                             value: dropdownvalue,
-                             isExpanded: true,
-                             onChanged: enabled==false ? null : (String data) {
-                             setState(() {
-                              dropdownvalue = data;
-                            });
+                  padding: const EdgeInsets.only(top:10),
+                  child: Container(
+                    height: 200, width: 340,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    child: Stack(
+                      children: <Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: map = GoogleMap(
+                          onMapCreated: (GoogleMapController controller){
+                            _controller1.complete(controller);
                           },
-                             items: cityName.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                          myLocationEnabled: false,
+                          myLocationButtonEnabled: false,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(lat,lng),
+                            zoom: 18.5
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: RaisedButton(
-                    onPressed: () => enabled ? checkDetails() : null,
-                    textColor: Colors.white,
-                    elevation: 0,
-                    color: Colors.orange,
-                    shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                    child: Container(
-                      width: 250,
-                      height: 55,
-                      decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(80.0))
-                      ),
-                      child: Center(
-                        child: const Text('Save changes', style: TextStyle(fontSize: 20)
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                          visible: visible,
-                          child: Container(
-                              margin: EdgeInsets.only(bottom: 30),
-                              child: Center(child: CircularProgressIndicator())
                           )
-                      ),
+                        ),
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 60),
+                            child: Icon(Icons.location_on, size: 40),
+                          )
+                        ),
+                        Center(
+                          child: Visibility(
+                            visible: visible,
+                            child: Center(
+                             child: CircularProgressIndicator()
+                            )
+                          )
+                        ),
+                        Container(
+                          color: Colors.transparent
+                        ),
+                        Positioned(
+                          right: 7,
+                          child: IconButton(icon: Icon(Icons.edit, size: 25,),  
+                          color: enabled ? Colors.black : Colors.transparent, 
+                          onPressed: () => enabled ? showMap() : null)
+                        ), 
+                        Positioned(
+                          top: 40, right:20,
+                          child: Text('EDIT', style: TextStyle(color: enabled ? Colors.black : Colors.transparent, fontSize: 12, fontWeight: FontWeight.w600),)
+                        )
+                      ],
+                    )
+                  )
+                ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: RaisedButton(
+                            splashColor: enabled ? Colors.grey : Colors.transparent,
+                            highlightColor: enabled? Colors.grey : Colors.transparent,
+                            onPressed: () => enabled ? checkDetails() : null,
+                            textColor: Colors.white,
+                            elevation: 0,
+                            color: enabled ? Colors.orange : Colors.white,
+                            shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                            child: Container(
+                              width: 250,
+                              height: 55,
+                              decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(80.0))
+                              ),
+                              child: Center(
+                                child: const Text('Save changes', style: TextStyle(fontSize: 20)
+                                ),
+                              ),
+                        ),
+                    ),
+                ),
             ],
             )
           ),

@@ -291,13 +291,25 @@ class _mycartState extends State<mycart> {
                         );
                       }
                       else{
-                        return Stack(children: <Widget>[
-                          Center(child: Image(image: AssetImage('empty2.png'),)),
-                          Center(
-                            child: Padding(padding: EdgeInsets.only(top:190),
-                            child: Text("There's nothing here!", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),)),
-                          )
-                        ],);
+                        return Center(
+                          child: Stack(children: <Widget>[
+                              Center(
+                                child: Container(
+                                  width: 200,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle, 
+                                    image: DecorationImage(
+                                      image: AssetImage('empty2.png'),
+                                      fit: BoxFit.cover)),
+                                )
+                              ),
+                              Center(
+                                child: Padding(padding: EdgeInsets.only(top:240),
+                                child: Text("Your cart is empty!", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),)),
+                              )
+                            ],),
+                        );
                       }
                     }
                   },

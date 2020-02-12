@@ -1,3 +1,4 @@
+import 'package:e_commerce/getuserdata.dart';
 import 'package:e_commerce/login.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -35,13 +36,17 @@ class _MyAppState extends State<MyApp> {
   Future afterSplash () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     email = prefs.getString('email');
+    print(email);
     if(email==null)
       Navigator.push(context, PageTransition(type: PageTransitionType.fade, duration:Duration(milliseconds: 300), child: login()));
     else {
       await Firestore.instance.collection('users').document(email).get().then((DocumentSnapshot mysnap){
       ds=mysnap;
-      if(mysnap.data!=null)
-      Navigator.push(context, PageTransition(type: PageTransitionType.rightToLeftWithFade, duration:Duration(milliseconds: 400), child: listPage(post: ds,)));
+      if(mysnap.data==null || mysnap.data.toString()=='{}')
+            Navigator.push(context, PageTransition(type: PageTransitionType.fade, duration:Duration(milliseconds: 300), child: getUserData(email: email,)));
+      else 
+            Navigator.push(context, PageTransition(type: PageTransitionType.rightToLeftWithFade, duration:Duration(milliseconds: 400), child: listPage(post: ds,)));
+
       }); 
     }
   }

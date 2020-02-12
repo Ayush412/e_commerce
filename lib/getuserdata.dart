@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart';
 import 'products.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class getUserData extends StatefulWidget {
   final String email;
@@ -21,29 +24,118 @@ class _getUserDataState extends State<getUserData> {
   FocusNode node2 = FocusNode();
   FocusNode node3 = FocusNode();
   FocusNode node4 = FocusNode();
+  double lat=0;
+  double newlat=0;
+  double lng=0;
+  double newlng=0;
   bool visible = false;
-  String dropdownvalue = '--City--';
 
+  Geolocator geolocator = Geolocator();
+
+  @override
+  void initState() { 
+    super.initState();
+    getLocation();
+  }
+
+  Future getLocation() async {
+    Position currentLocation = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    lat = currentLocation.latitude;
+    lng = currentLocation.longitude;
+  }
+
+  void _onCameraMove(CameraPosition position){
+    CameraPosition newPosition = CameraPosition(target: position.target);
+    setState(() {
+      print(newPosition.target);
+      newlat=newPosition.target.latitude;
+      newlng=newPosition.target.longitude;
+      });
+  }
+
+
+  showMap(){
+    Completer<GoogleMapController> _controller2 = Completer();
+    return showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: Text('Select Delivery Location'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          content: Container(
+            height: 400, width: 300,
+            child: Stack(
+                  children: <Widget>[
+                  GoogleMap(
+                    onMapCreated: (GoogleMapController controller){
+                      _controller2.complete(controller);
+                    },
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    onCameraMove: _onCameraMove,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(lat, lng),
+                      zoom: 18.0
+                    ),
+                  ),
+                  Align(
+                      alignment: Alignment.topCenter,    
+                      child: Padding(
+                      padding: const EdgeInsets.only(top: 165), 
+                      child: Icon(Icons.location_on, size:38)
+                      ),
+                  )
+              ],
+            )
+          ),
+          actions: <Widget>[
+            FlatButton(child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), onPressed: () => updateMap()),
+            FlatButton(child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), onPressed: () => onCancel())
+          ],
+         )
+    );
+  }
+
+  onCancel(){
+    Navigator.pop(context);
+    newlat=0;
+    newlng=0;
+  }
+
+  Future <void> updateMap() async {
+    lat=newlat;
+    lng=newlng;
+    Navigator.pop(context);
+    final GoogleMapController controller = await _controller1.future;
+    controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (newlat, newlng), 18.5));
+  }
+  
   checkDetails(){
-    if (fnamecontroller.text!=null && lnamecontroller.text!=null && addresscontroller.text!=null && mobcontroller.text!=null && dropdownvalue!='--City--')
+    if (fnamecontroller.text!='' && lnamecontroller.text!='' && addresscontroller.text!='' && mobcontroller.text!='' && lat!=0 && lng!=0)
     addUserDetails();
     else
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Please fill all fields.", 
-          style: TextStyle(color: Colors.black)), 
-          backgroundColor: Colors.orange, 
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(lat!=0 ?  "Please fill all fields": "Select map location", 
+          style: TextStyle(color: Colors.white)), 
+          backgroundColor: Colors.black, 
           duration: Duration(milliseconds: 1500),
           shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
   }
 
   Future addUserDetails() async {
+    setState(() {
+      visible = true;
+    });
     await Firestore.instance.collection('users').document(widget.email)
     .setData({
       'FName': fnamecontroller.text,
       'LName': lnamecontroller.text,
       'Address': addresscontroller.text,
       'Mob': int.parse(mobcontroller.text),
-      'City': dropdownvalue
+      'Latitude': lat,
+      'Longitude': lng 
+    });
+    setState(() {
+      visible=false;
     });
     navigateToProducts();
   }
@@ -53,11 +145,8 @@ class _getUserDataState extends State<getUserData> {
        Navigator.push(context, MaterialPageRoute(builder: (context) => listPage(post: mysnap)));
     });
   }
-  
-  List <String> cityName = [
-    '--City--', 'Doha', 'Al Khor', 'Dukhan', 'Mesaieed'
-    ] ;
 
+  Completer<GoogleMapController> _controller1 = Completer();
   @override
   Widget build(BuildContext context) {
     return WillPopScope(   
@@ -76,8 +165,8 @@ class _getUserDataState extends State<getUserData> {
         actions: <Widget>[
           IconButton(icon: Icon(Icons.info), color: Colors.white,
           onPressed: () => _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Enter user credentials.", 
-          style: TextStyle(color: Colors.black)), 
-          backgroundColor: Colors.orange, 
+          style: TextStyle(color: Colors.white)), 
+          backgroundColor: Colors.black, 
           duration: Duration(milliseconds: 1500),
           shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))))))
@@ -89,7 +178,7 @@ class _getUserDataState extends State<getUserData> {
                   child: Center(
             child: Column(children: <Widget>[
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:15),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -108,7 +197,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:10),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -127,7 +216,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:10),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -147,7 +236,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:30),
+                    padding: const EdgeInsets.only(top:15),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -166,40 +255,58 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      width: 280,
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(width: 1.0, style: BorderStyle.solid, color: Colors.grey),
-                          borderRadius: BorderRadius.all(Radius.circular(32.0)),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left:10.0, right:3.0),
-                        child: DropdownButtonHideUnderline(
-                             child: DropdownButton<String>(
-                             hint: Text("City"),
-                             value: dropdownvalue,
-                             isExpanded: true,
-                             onChanged: (String data) {
-                             setState(() {
-                              dropdownvalue = data;
-                            });
+                  padding: const EdgeInsets.only(top:10),
+                  child: Container(
+                    height: 200, width: 340,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    child: Stack(
+                      children: <Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: GoogleMap(
+                          onMapCreated: (GoogleMapController controller){
+                            _controller1.complete(controller);
                           },
-                             items: cityName.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                          myLocationEnabled: false,
+                          myLocationButtonEnabled: false,
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(lat,lng),
+                            zoom: 18.5
+                          ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 60),
+                            child: Icon(Icons.location_on, size: 40),
+                          )
+                        ),
+                        Center(
+                          child: Visibility(
+                            visible: visible,
+                            child: Center(
+                             child: CircularProgressIndicator()
+                            )
+                          )
+                        ),
+                        Container(
+                          color: Colors.transparent
+                        ),
+                        Positioned(
+                          right:10,
+                          child: IconButton(icon: Icon(Icons.edit, size: 30,), onPressed: () => showMap(),)
+                        ),
+                        Positioned(
+                          right: 14, top: 39,
+                          child: Text((newlat==null ? "Select" : "Edit"))
+                        )
+                      ],
+                    )
+                  )
+                ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 40),
+                    padding: const EdgeInsets.only(top: 10),
                     child: RaisedButton(
                     onPressed: () => checkDetails(),
                     textColor: Colors.white,
@@ -218,13 +325,6 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
                 ),
-                Visibility(
-                          visible: visible,
-                          child: Container(
-                              margin: EdgeInsets.only(bottom: 30),
-                              child: CircularProgressIndicator()
-                          )
-                      ),
             ],
             )
           ),
