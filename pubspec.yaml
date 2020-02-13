@@ -32,6 +32,8 @@ dependencies:
   carousel_slider:
   google_maps_flutter:
   geolocator:
+  image_picker:
+  firebase_ml_vision:
     
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,6 +61,8 @@ flutter:
     - Fashion.jpg
     - Electronics.jpg
     - null.jpg
+    - search.png
+    - scan.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

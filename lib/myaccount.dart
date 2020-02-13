@@ -316,7 +316,7 @@ class _myAccountState extends State<myAccount > {
                 getCartCount();
                 print(lng);
             })),
-          _shoppingCartBadge()
+          widget.counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID))))
         ],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(25))),
         elevation: 0.0),

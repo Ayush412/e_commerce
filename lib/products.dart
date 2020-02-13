@@ -11,6 +11,7 @@ import 'addNotification.dart';
 import 'myNotifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'scanToSearch.dart';
 
 class listPage extends StatefulWidget {
 
@@ -269,8 +270,43 @@ class _listPageState extends State<listPage> {
                     ),
                   ),
                 ),
+                Padding(
+                padding: const EdgeInsets.only(top: 25.0),
+                child: Container(
+                      width:250,
+                      height:60,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        splashColor: Colors.grey,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => scanToSearch(post: widget.post, counter: _counter ,))),
+                        child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      color: Colors.black,
+                      child: Stack(
+                        children: <Widget>[
+                        Center(child: Text('Scan To Search', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),)),
+                        Positioned(
+                          left:17,
+                          top:14,
+                          child: Icon(Icons.camera_alt, color: Colors.grey,)
+                        ),
+                        Positioned(
+                          right:14, top:5,
+                          child:Container(
+                            height:15,
+                            width: 40,
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.green),
+                            child: Center(child: Text("New", style: TextStyle(color: Colors.white),))
+                          )
+                        )
+                        ]
+                        )
+                        ),
+                    ),
+                  ),
+                ),
               Padding(
-                padding: const EdgeInsets.only(top: 290),
+                padding: const EdgeInsets.only(top: 210),
                 child: Container(
                       alignment: Alignment.bottomCenter,
                       width:180,
@@ -370,8 +406,7 @@ class _listPageState extends State<listPage> {
                   getNotifCount();
               })),
               _notifCount>0 ? _notificationBadge() : IconButton(icon: Icon(Icons.notifications), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myNotifications(widget.post.documentID, widget.post)))),
-
-              _shoppingCartBadge()
+              _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID))))
             ],
             backgroundColor: Colors.black,
             leading: IconButton(icon: Icon(Icons.settings, color: Colors.white),onPressed: () => _scaffoldKey.currentState.openDrawer()),
