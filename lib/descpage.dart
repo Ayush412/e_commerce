@@ -266,7 +266,6 @@ class _prodDescriptionState extends State<prodDescription> {
                   ),
                   Padding(padding: EdgeInsets.only(top:15),
                   child: Container(
-                      height: 500,
                       width:380,
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
                       color: Colors.black),
@@ -351,11 +350,12 @@ class _prodDescriptionState extends State<prodDescription> {
                            ],
                           )
                         ),
+                        Padding(padding: const EdgeInsets.only(bottom:20),)
                       ]),
                  )
                  )),
                Padding(
-                  padding: const EdgeInsets.only(top: 30),
+                  padding: const EdgeInsets.only(top: 30, bottom:20),
                   child: Container(
                     alignment: Alignment.bottomCenter,
                     width:260,
