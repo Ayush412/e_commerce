@@ -28,6 +28,7 @@ class add2cart{
       'ProdName': post.data['ProdName'],
       'ProdCost': post.data['ProdCost'],
       'imgurl': post.data['imgurl'],
+      'Rate': 0
     });
 
   }

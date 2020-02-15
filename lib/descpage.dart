@@ -106,7 +106,8 @@ class _prodDescriptionState extends State<prodDescription> {
               toolbarOpacity: 0.5,
               elevation: 0,
               actions: <Widget>[
-                _shoppingCartBadge()
+                widget.counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID))))
+
               ],
               backgroundColor: Colors.black,
               leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack()),
