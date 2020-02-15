@@ -1,14 +1,15 @@
 filename, language, Dart, comment, blank, total
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/add2cart.dart, Dart, 30, 0, 4, 34
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/addNotification.dart, Dart, 25, 0, 2, 27
-/Users/fatboy/Documents/flutter projects/e_commerce/lib/descpage.dart, Dart, 168, 0, 11, 179
+/Users/fatboy/Documents/flutter projects/e_commerce/lib/descpage.dart, Dart, 365, 0, 18, 383
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/getuserdata.dart, Dart, 321, 0, 15, 336
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/login.dart, Dart, 244, 0, 15, 259
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/main.dart, Dart, 68, 0, 11, 79
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/myNotifications.dart, Dart, 178, 0, 13, 191
-/Users/fatboy/Documents/flutter projects/e_commerce/lib/myaccount.dart, Dart, 479, 0, 15, 494
+/Users/fatboy/Documents/flutter projects/e_commerce/lib/myaccount.dart, Dart, 481, 0, 15, 496
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/mycart.dart, Dart, 312, 0, 13, 325
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/notifdesc.dart, Dart, 85, 0, 8, 93
-/Users/fatboy/Documents/flutter projects/e_commerce/lib/products.dart, Dart, 682, 1, 32, 715
+/Users/fatboy/Documents/flutter projects/e_commerce/lib/products.dart, Dart, 726, 1, 30, 757
 /Users/fatboy/Documents/flutter projects/e_commerce/lib/register.dart, Dart, 283, 0, 11, 294
-Total, -, 2875, 1, 150, 3026
+/Users/fatboy/Documents/flutter projects/e_commerce/lib/scanToSearch.dart, Dart, 222, 0, 9, 231
+Total, -, 3340, 1, 164, 3505

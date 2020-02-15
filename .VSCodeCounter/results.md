@@ -1,21 +1,21 @@
 # Summary
 
-Date : 2020-02-12 13:40:09
+Date : 2020-02-15 17:41:41
 
 Directory /Users/fatboy/Documents/flutter projects/e_commerce/lib
 
-Total : 12 files,  2875 codes, 1 comments, 150 blanks, all 3026 lines
+Total : 13 files,  3340 codes, 1 comments, 164 blanks, all 3505 lines
 
 [details](details.md)
 
 ## Languages
 | language | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Dart | 12 | 2,875 | 1 | 150 | 3,026 |
+| Dart | 13 | 3,340 | 1 | 164 | 3,505 |
 
 ## Directories
 | path | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| . | 12 | 2,875 | 1 | 150 | 3,026 |
+| . | 13 | 3,340 | 1 | 164 | 3,505 |
 
 [details](details.md)

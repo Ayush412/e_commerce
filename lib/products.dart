@@ -181,6 +181,7 @@ class _listPageState extends State<listPage> {
 
   navigateToDetail(DocumentSnapshot post, String tag){
     String email = widget.post.documentID.toString();
+    print (tag);
     Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag)));
   }
 

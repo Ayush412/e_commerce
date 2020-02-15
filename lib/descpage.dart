@@ -88,6 +88,7 @@ class _prodDescriptionState extends State<prodDescription> {
       }
     }
     Navigator.pop(context);
+    if(rate!=0){
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Rating recorded!', 
     style: TextStyle(color: Colors.white)), 
     backgroundColor: Colors.green, 
@@ -99,6 +100,7 @@ class _prodDescriptionState extends State<prodDescription> {
       '$rate Star': count+1,
       'Rate': (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
     });
+    }
    }
 
    void addSnackBar(){
