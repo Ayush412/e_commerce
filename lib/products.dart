@@ -390,7 +390,7 @@ class _listPageState extends State<listPage> {
           ],
          )
         ),
-          child: MaterialApp(
+        child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           key: _scaffoldKey,
@@ -726,7 +726,6 @@ class _listPageState extends State<listPage> {
                         duration: Duration(milliseconds: 500),
                         shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
-        
                       }
                       subcatVal = await showMenu<String>(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

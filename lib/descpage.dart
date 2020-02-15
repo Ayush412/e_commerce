@@ -88,6 +88,12 @@ class _prodDescriptionState extends State<prodDescription> {
       }
     }
     Navigator.pop(context);
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Rating recorded!', 
+    style: TextStyle(color: Colors.white)), 
+    backgroundColor: Colors.green, 
+    duration: Duration(milliseconds: 500),
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
     await Firestore.instance.collection('products').document(widget.post.documentID)
     .updateData({
       '$rate Star': count+1,
