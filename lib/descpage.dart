@@ -25,6 +25,15 @@ class _prodDescriptionState extends State<prodDescription> {
   Timer _timer;
   int stock;
   int quantity=1;
+  int rate1=0;
+  int rate2=0;
+  int rate3=0;
+  int rate4=0;
+  int rate5=0;
+  int starRate=0;
+  int totalVotes=0;
+  double totalRate=0;
+  
   Widget _shoppingCartBadge() {
     return Badge(
       position: BadgePosition.topRight(top: 0, right: 3),
@@ -71,6 +80,14 @@ class _prodDescriptionState extends State<prodDescription> {
   void initState() { 
     super.initState();
     stock=widget.post.data['Stock'];
+    rate1=widget.post.data['1 Star'];
+    rate2=widget.post.data['2 Star'];
+    rate3=widget.post.data['3 Star'];
+    rate4=widget.post.data['4 Star'];
+    rate5=widget.post.data['5 Star'];
+    totalVotes=rate1+rate2+rate3+rate4+rate5;
+    totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+    starRate=totalRate.round();
     _timer = new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         oplevel=1;
@@ -135,7 +152,7 @@ class _prodDescriptionState extends State<prodDescription> {
                         mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(5, (val) {
                           return Icon(
-                          val < widget.post.data['Rate'] ? Icons.star : Icons.star_border,
+                          val < starRate ? Icons.star : Icons.star_border,
                           color: Colors.white,
                           );
                           }),

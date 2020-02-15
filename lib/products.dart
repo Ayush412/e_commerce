@@ -36,6 +36,14 @@ class _listPageState extends State<listPage> {
   Timer _timer;
   int _counter=0;
   int _notifCount=0;
+  int rate1=0;
+  int rate2=0;
+  int rate3=0;
+  int rate4=0;
+  int rate5=0;
+  int starRate=0;
+  int totalVotes=0;
+  double totalRate=0;
 
   @override
   void initState() { 
