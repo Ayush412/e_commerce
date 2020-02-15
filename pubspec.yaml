@@ -34,6 +34,8 @@ dependencies:
   geolocator:
   image_picker:
   firebase_ml_vision:
+  percent_indicator:
+  smooth_star_rating:
     
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
