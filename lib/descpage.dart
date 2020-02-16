@@ -296,7 +296,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                       child: Text('$totalVotes ratings', style: TextStyle(color: Colors.white)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(top:10, left:55),
+                                      padding: const EdgeInsets.only(top:10, left:65),
                                       child: GestureDetector(
                                         onTap: () => giveRating(),
                                         child: Container(
