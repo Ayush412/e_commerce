@@ -29,6 +29,8 @@ class _getUserDataState extends State<getUserData> {
   double lng=0;
   double newlng=0;
   bool visible = false;
+  String mylocation='Choose a location';
+  GoogleMap map;
 
   Geolocator geolocator = Geolocator();
 
@@ -38,10 +40,21 @@ class _getUserDataState extends State<getUserData> {
     getLocation();
   }
 
+  getPlace() async{
+    List<Placemark> p = await Geolocator().placemarkFromCoordinates(lat,lng);
+    Placemark place = p[0];
+    setState(() {
+      mylocation="${place.name}, ${place.subLocality}, ${place.locality}, ${place.country}";
+    });
+  }
+
   Future getLocation() async {
     Position currentLocation = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    lat = currentLocation.latitude;
-    lng = currentLocation.longitude;
+    setState(() {
+      lat = currentLocation.latitude;
+      lng = currentLocation.longitude;
+    });
+    
   }
 
   void _onCameraMove(CameraPosition position){
@@ -102,8 +115,12 @@ class _getUserDataState extends State<getUserData> {
   }
 
   Future <void> updateMap() async {
+    setState(() {
+      visible=false;
+    });
     lat=newlat;
     lng=newlng;
+    getPlace();
     Navigator.pop(context);
     final GoogleMapController controller = await _controller1.future;
     controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (newlat, newlng), 18.5));
@@ -178,7 +195,7 @@ class _getUserDataState extends State<getUserData> {
                   child: Center(
             child: Column(children: <Widget>[
               Padding(
-                    padding: const EdgeInsets.only(top:15),
+                    padding: const EdgeInsets.only(top:20),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -197,7 +214,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:10),
+                    padding: const EdgeInsets.only(top:30),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -216,7 +233,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
               Padding(
-                    padding: const EdgeInsets.only(top:10),
+                    padding: const EdgeInsets.only(top:30),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -236,7 +253,7 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top:15),
+                    padding: const EdgeInsets.only(top:30),
                     child: Container(
                                 width: 300,
                                 padding: EdgeInsets.all(10.0),
@@ -246,8 +263,8 @@ class _getUserDataState extends State<getUserData> {
                       controller: addresscontroller,
                       focusNode: node4,
                       decoration: new InputDecoration(
-                        labelText: 'Address',
-                        prefixIcon: Icon(Icons.home, color: Colors.black,),
+                        labelText: 'Building and Flat No.',
+                        prefixIcon: Icon(Icons.location_city, color: Colors.black,),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
                         ))
                       ),
@@ -255,26 +272,26 @@ class _getUserDataState extends State<getUserData> {
                     ),
                   ),
                   Padding(
-                  padding: const EdgeInsets.only(top:10),
+                  padding: const EdgeInsets.only(top:30),
                   child: Container(
                     height: 200, width: 340,
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
                     child: Stack(
                       children: <Widget>[
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: GoogleMap(
-                          onMapCreated: (GoogleMapController controller){
-                            _controller1.complete(controller);
-                          },
-                          myLocationEnabled: false,
-                          myLocationButtonEnabled: false,
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(lat,lng),
-                            zoom: 18.5
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                            child: map = GoogleMap(
+                            onMapCreated: (GoogleMapController controller){
+                              _controller1.complete(controller);
+                            },
+                            myLocationEnabled: false,
+                            myLocationButtonEnabled: false,
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(lat,lng),
+                              zoom: 18.5
+                            ),
+                            )
                           ),
-                          ),
-                        ),
                         Align(
                           alignment: Alignment.topCenter,
                           child: Padding(
@@ -294,19 +311,32 @@ class _getUserDataState extends State<getUserData> {
                           color: Colors.transparent
                         ),
                         Positioned(
-                          right:10,
-                          child: IconButton(icon: Icon(Icons.edit, size: 30,), onPressed: () => showMap(),)
-                        ),
+                          right: 7,
+                          child: IconButton(icon: Icon(Icons.edit, size: 25,),  
+                          color: Colors.black,
+                          onPressed: () =>  showMap())
+                        ), 
                         Positioned(
-                          right: 14, top: 39,
-                          child: Text((newlat==null ? "Select" : "Edit"))
+                          top: 40, right:20,
+                          child: Text('EDIT', style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w600),)
                         )
                       ],
                     )
                   )
                 ),
+                Container(
+                    width: 340,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Text(mylocation, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),)
+                    )
+                  ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(top: 20, bottom:20),
                     child: RaisedButton(
                     onPressed: () => checkDetails(),
                     textColor: Colors.white,
