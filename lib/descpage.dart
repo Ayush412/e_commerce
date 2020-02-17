@@ -15,7 +15,6 @@ final DocumentSnapshot userpost;
 Map<String, double> map = Map<String, double>();
 String tag;
 prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, this.map});
-
   @override
   _prodDescriptionState createState() => _prodDescriptionState();
 }
@@ -25,7 +24,7 @@ class _prodDescriptionState extends State<prodDescription> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   double oplevel=0;
   int onpage=0;
-  int counter=0;
+  int counter;
   Timer _timer;
   int stock;
   int quantity=1;
@@ -214,22 +213,22 @@ class _prodDescriptionState extends State<prodDescription> {
   void initState() { 
     userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
     data=widget.post;
-    super.initState();
+    counter=widget.counter;
+    stock=data.data['Stock'];
+    rate1=data.data['1 Star'];
+    rate2=data.data['2 Star'];
+    rate3=data.data['3 Star'];
+    rate4=data.data['4 Star'];
+    rate5=data.data['5 Star'];
+    totalVotes=rate1+rate2+rate3+rate4+rate5;
+    totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
     _timer = new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         oplevel=1;
       });
-        stock=data.data['Stock'];
-        rate1=data.data['1 Star'];
-        rate2=data.data['2 Star'];
-        rate3=data.data['3 Star'];
-        rate4=data.data['4 Star'];
-        rate5=data.data['5 Star'];
-        totalVotes=rate1+rate2+rate3+rate4+rate5;
-        totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
-      getCartCount();
     });
   }
+  
     @override
    void dispose(){
      super.dispose();
