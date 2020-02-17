@@ -29,26 +29,30 @@ class _scanToSearchState extends State<scanToSearch> {
     FirebaseVisionImage visionImage;
     ImageLabeler labeler = FirebaseVision.instance.imageLabeler();
     imageFile =  await ImagePicker.pickImage(source: ImageSource.camera);
-    visionImage = FirebaseVisionImage.fromFile(imageFile);
-    labels = await labeler.processImage(visionImage);
-    for (ImageLabel label in labels) {
-      final String text = label.text;
-      final String entityId = label.entityId;
-      final double confidence = label.confidence;
-      print(text);
-      print(entityId);
-      print(confidence);
-      print("");
-      if(double.parse('$confidence') > bestConfidence)
-      {
-        bestText = text;
-        bestConfidence = double.parse('$confidence');
+    if(imageFile==null)
+      return 0;
+    else{
+      visionImage = FirebaseVisionImage.fromFile(imageFile);
+      labels = await labeler.processImage(visionImage);
+      for (ImageLabel label in labels) {
+        final String text = label.text;
+        final String entityId = label.entityId;
+        final double confidence = label.confidence;
+        print(text);
+        print(entityId);
+        print(confidence);
+        print("");
+        if(double.parse('$confidence') > bestConfidence)
+        {
+          bestText = text;
+          bestConfidence = double.parse('$confidence');
+        }
       }
+      print('Best: $bestText => $bestConfidence');
+      setState(() {
+        data=getScanData();
+      });
     }
-    print('Best: $bestText => $bestConfidence');
-    setState(() {
-      data=getScanData();
-    });
   }
 
   Future getScanData() async{
@@ -73,10 +77,12 @@ class _scanToSearchState extends State<scanToSearch> {
                         child: FutureBuilder(
                           future: data,
                           builder: (_, snapshot){
-                            if(snapshot.connectionState == ConnectionState.waiting)
-                            return Center(child: CircularProgressIndicator());
+                            if(snapshot.connectionState == ConnectionState.waiting){
+                              return Center(child: CircularProgressIndicator());
+                            }
                             else{
-                              if(snapshot.data.length>0)
+                              if(snapshot.data.length>0){
+                
                               return Stack(
                                     children: <Widget>[
                                        Padding(
@@ -87,7 +93,7 @@ class _scanToSearchState extends State<scanToSearch> {
                                           padding: const EdgeInsets.only(left: 4, right:4, top: 40),
                                           itemCount: snapshot.data.length,
                                           itemBuilder: (_, index){
-                                            return Container(height: 150,
+                                            return Container(height: 130,
                                               child: Card(
                                                 elevation: 0,
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -123,8 +129,10 @@ class _scanToSearchState extends State<scanToSearch> {
                                   ),
                                 ],
                               );
-                              else
-                              return centerImage("Couldn't find relevant products\n[ Predicted: `$bestText` ]", 'search.png');
+                              }
+                              else{
+                                return centerImage("Couldn't find relevant products\n[ Predicted: `$bestText` ]", 'search.png');
+                              }
                             }
                           },
                         ),
@@ -177,6 +185,7 @@ class _scanToSearchState extends State<scanToSearch> {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           home: Scaffold(
+            extendBody: true,
             backgroundColor: Colors.white,
             appBar: AppBar(
               centerTitle: true,
@@ -217,14 +226,24 @@ class _scanToSearchState extends State<scanToSearch> {
                    decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
                   )
                 ),
-                display()
+                display(),
               ],
             ),
+            bottomNavigationBar: ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                      child: BottomAppBar(
+                        shape: CircularNotchedRectangle(),
+                        color: Colors.orange,
+                        child: Container(height: 40,),
+                      )
+                    ),
             floatingActionButton: FloatingActionButton(
+              elevation: 0,
               onPressed: () => getImageFile(),
               child: Icon(Icons.camera_alt, color: Colors.black),
-              backgroundColor: Colors.grey,
+              backgroundColor: Colors.orange,
             ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           )
         )
     );

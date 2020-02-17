@@ -525,7 +525,7 @@ class _listPageState extends State<listPage> {
                                 padding: const EdgeInsets.all(4.0),
                                 itemCount: snapshot.data.length,
                                 itemBuilder: (_, index){
-                                  return Container(height: 150,
+                                  return Container(height: 130,
                                     child: Card(
                                       elevation: 1,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
