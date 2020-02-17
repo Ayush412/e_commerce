@@ -44,7 +44,7 @@ class _listPageState extends State<listPage> {
   int starRate=0;
   int totalVotes=0;
   double totalRate=0;
-
+  Map<String, double> rateMap = Map<String, double>();
   @override
   void initState() { 
     super.initState();
@@ -83,6 +83,7 @@ class _listPageState extends State<listPage> {
         },
   );
     data=getData();
+    getAllRatings();
     topdata=getTopData(catVal2);
     _timer = new Timer(const Duration(milliseconds: 1100), () {
       setState(() {
@@ -91,6 +92,12 @@ class _listPageState extends State<listPage> {
       getCartCount();
       getNotifCount();
     }); 
+  }
+
+  Future getAllRatings() async{
+    QuerySnapshot qs = await Firestore.instance.collection('users/${widget.post.documentID}/Ratings').getDocuments();
+    qs.documents.forEach((f) => rateMap['${f.documentID}']=f.data['Rate']);
+    print(rateMap);
   }
 
   Future getCartCount() async{
@@ -180,9 +187,9 @@ class _listPageState extends State<listPage> {
   }
 
   navigateToDetail(DocumentSnapshot post, String tag){
+    getAllRatings();
     String email = widget.post.documentID.toString();
-    print (tag);
-    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag)));
+    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap)));
   }
 
   Widget _shoppingCartBadge() {
@@ -195,7 +202,7 @@ class _listPageState extends State<listPage> {
         style: TextStyle(color: Colors.white),
       ),
       child: IconButton(icon: Icon(Icons.shopping_cart), 
-      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID))),
+      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))),
     ));
   }
 
@@ -415,7 +422,7 @@ class _listPageState extends State<listPage> {
                   getNotifCount();
               })),
               _notifCount>0 ? _notificationBadge() : IconButton(icon: Icon(Icons.notifications), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myNotifications(widget.post.documentID, widget.post)))),
-              _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID))))
+              _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))))
             ],
             backgroundColor: Colors.black,
             leading: IconButton(icon: Icon(Icons.settings, color: Colors.white),onPressed: () => _scaffoldKey.currentState.openDrawer()),

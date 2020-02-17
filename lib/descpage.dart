@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,9 @@ int counter;
 final String email;
 final DocumentSnapshot post;
 final DocumentSnapshot userpost;
-
+Map<String, double> map = Map<String, double>();
 String tag;
-prodDescription({this.post, this.email, this.counter, this.userpost, this.tag});
+prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, this.map});
 
   @override
   _prodDescriptionState createState() => _prodDescriptionState();
@@ -25,6 +26,7 @@ class _prodDescriptionState extends State<prodDescription> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   double oplevel=0;
   int onpage=0;
+  int counter=0;
   Timer _timer;
   int stock;
   int quantity=1;
@@ -34,8 +36,10 @@ class _prodDescriptionState extends State<prodDescription> {
   int rate4=0;
   int rate5=0;
   int totalVotes=0;
-  double userRate=0;
+  double userRate;
+  double newUserRate=0;
   double totalRate=0;
+  DocumentSnapshot data;
   
   Widget _shoppingCartBadge() {
     return Badge(
@@ -43,23 +47,96 @@ class _prodDescriptionState extends State<prodDescription> {
       animationDuration: Duration(milliseconds: 300),
       animationType: BadgeAnimationType.slide,
       badgeContent: Text(
-        widget.counter.toString()!=null ? widget.counter.toString() : "0",
+        counter.toString()!=null ? counter.toString() : "0",
         style: TextStyle(color: Colors.white),
       ),
       child: IconButton(icon: Icon(Icons.shopping_cart),       
       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.userpost.documentID))),),
     );
   }
+
+  Future updateRating() async{
+    double oldRate=userRate;
+    await giveRating();
+    if(oldRate==userRate)
+    {
+      return 0;
+    }
+    else{
+      await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
+      .updateData({
+        'Rate': newUserRate
+      });
+      print('${oldRate.toStringAsFixed(0)} Star');
+      await Firestore.instance.collection('products').document(widget.post.documentID)
+      .updateData({
+        '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1)
+      });
+    }
+  }
    
    Future getCartCount() async{
     QuerySnapshot _snap = await Firestore.instance.collection('/users/${widget.email}/Cart').getDocuments();
     List<DocumentSnapshot> _docCount = _snap.documents;
     setState(() {
-      widget.counter= _docCount.length;
+      counter= _docCount.length;
     });
    }
 
+   Future getUserRating() async{
+     await Firestore.instance.collection('/users/${widget.email}/Ratings').document(widget.post.documentID).get().then((DocumentSnapshot snap){
+       
+       if(snap.data!=null)
+        setState(() {
+          userRate=snap.data['Rate'];
+        });
+        else
+        userRate=0;
+     });
+   }
+  
+   Future refreshRate() async{
+     await Firestore.instance.collection('products').document(widget.post.documentID).get().then((DocumentSnapshot datasnap){
+       setState(() {
+        data=datasnap;
+        stock=data.data['Stock'];
+        rate1=data.data['1 Star'];
+        rate2=data.data['2 Star'];
+        rate3=data.data['3 Star'];
+        rate4=data.data['4 Star'];
+        rate5=data.data['5 Star'];
+        totalVotes=rate1+rate2+rate3+rate4+rate5;
+        totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+       });
+     });
+   }
+
+   Widget showRate(){
+     return Padding(
+              padding: const EdgeInsets.only(left:90),
+              child: Row(children: <Widget>[
+                Text('Your rating: ${userRate.toStringAsFixed(0)}/5', style: TextStyle(color: Colors.white)),
+                IconButton(icon: Icon(Icons.edit, color: Colors.grey, size: 22),onPressed: () => updateRating(),)
+              ],)
+    );
+   }
+
+   Widget rateButton(){
+     return Padding(
+              padding: const EdgeInsets.only(top:10, left:65),
+              child: GestureDetector(
+                onTap: () => giveRating(),
+                child: Container(
+                  height: 30, width:100,
+                  decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(20)),
+                  child: Center(child: Text('Rate this item', style: TextStyle(color: Colors.white),))
+                )
+              ),
+    );
+   }
+
    Future setUserRating(int rate) async{
+    Navigator.pop(context);
     int count;
     switch(rate){
       case 1: {
@@ -87,24 +164,32 @@ class _prodDescriptionState extends State<prodDescription> {
         break;
       }
     }
-    Navigator.pop(context);
     if(rate!=0){
+      await Firestore.instance.collection('products').document(widget.post.documentID)
+    .updateData({
+      '$rate Star': count+1,
+      'Rate': (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
+    });
+    await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
+    .setData({
+      'Rate': newUserRate
+    });
+    refreshRate();
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Rating recorded!', 
     style: TextStyle(color: Colors.white)), 
     backgroundColor: Colors.green, 
     duration: Duration(milliseconds: 500),
     shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
-    await Firestore.instance.collection('products').document(widget.post.documentID)
-    .updateData({
-      '$rate Star': count+1,
-      'Rate': (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
-    });
     }
+    userRate=newUserRate;
+    setState(() {
+    });
    }
 
    void addSnackBar(){
      add2cart(widget.post, widget.email);
+     getCartCount();
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Item added!", 
      style: TextStyle(color: Colors.white),), 
      backgroundColor: Colors.black, 
@@ -125,19 +210,21 @@ class _prodDescriptionState extends State<prodDescription> {
 
   @override
   void initState() { 
+    userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
+    data=widget.post;
     super.initState();
-    stock=widget.post.data['Stock'];
-    rate1=widget.post.data['1 Star'];
-    rate2=widget.post.data['2 Star'];
-    rate3=widget.post.data['3 Star'];
-    rate4=widget.post.data['4 Star'];
-    rate5=widget.post.data['5 Star'];
-    totalVotes=rate1+rate2+rate3+rate4+rate5;
-    totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
     _timer = new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         oplevel=1;
       });
+        stock=data.data['Stock'];
+        rate1=data.data['1 Star'];
+        rate2=data.data['2 Star'];
+        rate3=data.data['3 Star'];
+        rate4=data.data['4 Star'];
+        rate5=data.data['5 Star'];
+        totalVotes=rate1+rate2+rate3+rate4+rate5;
+        totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
       getCartCount();
     });
   }
@@ -146,7 +233,7 @@ class _prodDescriptionState extends State<prodDescription> {
      super.dispose();
      _timer.cancel();
    }
-
+  
    goBack(){
      setState(() {
        oplevel=0;
@@ -211,12 +298,11 @@ class _prodDescriptionState extends State<prodDescription> {
                       allowHalfRating: false,
                       onRatingChanged: (val){
                         setState((){
-                           userRate = val;
+                           newUserRate = val;
                         });
-                        print(userRate.toInt());
                       },
                       starCount: 5,
-                      rating: userRate,
+                      rating: newUserRate,
                       size:35,
                       color: Color(0xFFe8b430),
                       borderColor: Color(0xFFe8b430),
@@ -228,7 +314,7 @@ class _prodDescriptionState extends State<prodDescription> {
             )
           ),
           actions: <Widget>[
-            FlatButton( child: Text('Ok'), onPressed: () => setUserRating(userRate.toInt())
+            FlatButton( child: Text('Ok'), onPressed: () => setUserRating(newUserRate.toInt())
             )
           ],
         );
@@ -252,7 +338,7 @@ class _prodDescriptionState extends State<prodDescription> {
               toolbarOpacity: 0.5,
               elevation: 0,
               actions: <Widget>[
-                widget.counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID))))
+                counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID))))
 
               ],
               backgroundColor: Colors.black,
@@ -295,17 +381,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                       padding: const EdgeInsets.only(left:65),
                                       child: Text('$totalVotes ratings', style: TextStyle(color: Colors.white)),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:10, left:65),
-                                      child: GestureDetector(
-                                        onTap: () => giveRating(),
-                                        child: Container(
-                                          height: 30, width:100,
-                                          decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-                                          child: Center(child: Text('Rate this item', style: TextStyle(color: Colors.white),))
-                                        )
-                                      ),
-                                    )
+                                    userRate.toInt()==0? rateButton() : showRate(),
                                   ],
                                 ),
                               ),
