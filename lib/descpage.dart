@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:flutter/material.dart';
@@ -51,16 +50,19 @@ class _prodDescriptionState extends State<prodDescription> {
         style: TextStyle(color: Colors.white),
       ),
       child: IconButton(icon: Icon(Icons.shopping_cart),       
-      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.userpost.documentID))),),
+      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.userpost.documentID, counter: widget.counter,))),),
     );
   }
 
   Future updateRating() async{
     double oldRate=userRate;
     await giveRating();
-    if(oldRate==userRate)
+    if(oldRate==newUserRate)
     {
-      return 0;
+      await Firestore.instance.collection('products').document(widget.post.documentID)
+      .updateData({
+        '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1)
+      });
     }
     else{
       await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
@@ -338,7 +340,7 @@ class _prodDescriptionState extends State<prodDescription> {
               toolbarOpacity: 0.5,
               elevation: 0,
               actions: <Widget>[
-                counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID))))
+                counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID, counter: widget.counter,))))
 
               ],
               backgroundColor: Colors.black,
