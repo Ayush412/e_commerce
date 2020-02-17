@@ -25,7 +25,7 @@ class _myAccountState extends State<myAccount > {
   double lng;
   double newlat;
   double newlng;
-  String mylocation='';
+  String mylocation='Loading...';
   TextEditingController fnamecontroller = new TextEditingController();
   TextEditingController lnamecontroller = new TextEditingController();
   TextEditingController mobcontroller = new TextEditingController();
