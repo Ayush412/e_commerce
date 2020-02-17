@@ -42,25 +42,25 @@ class _myAccountState extends State<myAccount > {
   @override
   void initState() { 
     super.initState();
+    lat=widget.post.data['Latitude'];
+    lng=widget.post.data['Longitude'];
+    data=widget.post;
     fnamecontroller = TextEditingController(text: '${widget.post.data['FName']}');
     lnamecontroller = TextEditingController(text: '${widget.post.data['LName']}');
     mobcontroller = TextEditingController(text: '${widget.post.data['Mob'].toString()}');
     addresscontroller = TextEditingController(text: '${widget.post.data['Address']}');
-    lat=widget.post.data['Latitude'];
-    lng=widget.post.data['Longitude'];
-    data=widget.post;
     getPlace();
   }
 
   Map<PermissionGroup, PermissionStatus> permissions;
-  checkPermission() async{
+  Future checkPermission() async{
     permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
     PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
     print(permission.value);
     switch(permission.value){
       case 0:
       case 5:{
-        showDialog(
+        await showDialog(
                 context: context,
                 builder: (c) => AlertDialog(
                   title: Text('Location services disabled'),
@@ -68,15 +68,20 @@ class _myAccountState extends State<myAccount > {
                   content: Text("Please enble location services"),
                   actions: <Widget>[
                     FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
                       child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => openSettings())
+                      onPressed: () => openSettings()
+                    )
                   ],
                 )
         );
         break;
       }
       case 1:{
-        showDialog(
+        await showDialog(
                 context: context,
                 builder: (c) => AlertDialog(
                   title: Text('GPS disabled'),
@@ -84,11 +89,20 @@ class _myAccountState extends State<myAccount > {
                   content: Text("Please enble GPS services"),
                   actions: <Widget>[
                     FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
                       child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => enableGPS())
+                      onPressed: () => enableGPS()
+                    )
                   ],
                 )
         );
+        break;
+      }
+      case 2:{
+        showMap();
         break;
       }
     }
@@ -105,7 +119,7 @@ class _myAccountState extends State<myAccount > {
   openSettings() async{
     await PermissionHandler().openAppSettings();
     Navigator.pop(context);
-    checkPermission();
+    await checkPermission();
   }
 
   void _onCameraMove(CameraPosition position){
@@ -125,7 +139,6 @@ class _myAccountState extends State<myAccount > {
   }
 
   showMap() async{
-    checkPermission();
     Completer<GoogleMapController> _controller2 = Completer();
     return showDialog(
         context: context,
@@ -170,12 +183,16 @@ class _myAccountState extends State<myAccount > {
      setState((){
       visible = false;
      });
+     if(lat==newlat && lng ==newlat)
+     return 0;
+     else{
     lat=newlat;
     lng=newlng;
     getPlace();
     Navigator.pop(context);
     final GoogleMapController controller = await _controller1.future;
     controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (lat, lng), 18.5));
+     }
   }
 
   Future getUserInfo() async{
@@ -526,7 +543,7 @@ class _myAccountState extends State<myAccount > {
                               right: 7,
                               child: IconButton(icon: Icon(Icons.edit, size: 25,),  
                               color: enabled ? Colors.black : Colors.transparent, 
-                              onPressed: () => enabled ? showMap() : null)
+                              onPressed: () => enabled ? checkPermission() : null)
                             ), 
                             Positioned(
                               top: 40, right:20,

@@ -51,7 +51,7 @@ class _getUserDataState extends State<getUserData> {
     switch(permission.value){
       case 0:
       case 5:{
-        showDialog(
+        await showDialog(
                 context: context,
                 builder: (c) => AlertDialog(
                   title: Text('Location disabled'),
@@ -59,15 +59,20 @@ class _getUserDataState extends State<getUserData> {
                   content: Text("Please enble location services"),
                   actions: <Widget>[
                     FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
                       child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => openSettings())
+                      onPressed: () => openSettings()
+                    )
                   ],
                 )
               );
         break;
       }
       case 1:{
-        showDialog(
+        await showDialog(
                 context: context,
                 builder: (c) => AlertDialog(
                   title: Text('GPS disabled'),
@@ -75,11 +80,21 @@ class _getUserDataState extends State<getUserData> {
                   content: Text("Please enble GPS services"),
                   actions: <Widget>[
                     FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
                       child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => enableGPS())
+                      onPressed: () => enableGPS()
+                    )
                   ],
                 )
         );
+        break;
+      }
+      case 2:{
+        showMap();
+        break;
       }
     }
   }
@@ -95,7 +110,7 @@ class _getUserDataState extends State<getUserData> {
   openSettings() async{
     await PermissionHandler().openAppSettings();
     Navigator.pop(context);
-    checkPermission();
+    await checkPermission();
   }
 
   getPlace() async{
@@ -125,7 +140,8 @@ class _getUserDataState extends State<getUserData> {
   }
 
 
-  showMap(){
+  showMap() async{
+    await checkPermission();
     Completer<GoogleMapController> _controller2 = Completer();
     return showDialog(
         context: context,
@@ -176,12 +192,16 @@ class _getUserDataState extends State<getUserData> {
     setState(() {
       visible=false;
     });
-    lat=newlat;
-    lng=newlng;
-    getPlace();
-    Navigator.pop(context);
-    final GoogleMapController controller = await _controller1.future;
-    controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (newlat, newlng), 18.5));
+    if(lat==newlat && lng ==newlat)
+      return 0;
+    else{
+      lat=newlat;
+      lng=newlng;
+      getPlace();
+      Navigator.pop(context);
+      final GoogleMapController controller = await _controller1.future;
+      controller.animateCamera(CameraUpdate.newLatLngZoom(LatLng (newlat, newlng), 18.5));
+    }
   }
   
   checkDetails(){
@@ -372,7 +392,7 @@ class _getUserDataState extends State<getUserData> {
                           right: 7,
                           child: IconButton(icon: Icon(Icons.edit, size: 25,),  
                           color: Colors.black,
-                          onPressed: () =>  showMap())
+                          onPressed: () =>  checkPermission())
                         ), 
                         Positioned(
                           top: 40, right:20,
