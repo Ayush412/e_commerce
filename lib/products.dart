@@ -293,7 +293,7 @@ class _listPageState extends State<listPage> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => scanToSearch(post: widget.post, counter: _counter ,))),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => scanToSearch(post: widget.post, counter: _counter, map: rateMap,))),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.black,

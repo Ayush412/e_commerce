@@ -9,7 +9,8 @@ import 'products.dart';
 class scanToSearch extends StatefulWidget {
    final DocumentSnapshot post;
    final int counter;
-   scanToSearch({this.post, this.counter});
+   Map<String, double> map = Map<String, double>();
+   scanToSearch({this.post, this.counter, this.map});
   @override
   _scanToSearchState createState() => _scanToSearchState();
 }
@@ -57,7 +58,7 @@ class _scanToSearchState extends State<scanToSearch> {
 
   navigateToDetail(DocumentSnapshot post, String tag){
     String email = widget.post.documentID.toString();
-    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: widget.counter, userpost: widget.post, tag: tag)));
+    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: widget.counter, userpost: widget.post, tag: tag, map: widget.map,)));
   }
 
   Widget display(){
