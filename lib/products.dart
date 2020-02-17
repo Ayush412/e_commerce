@@ -97,7 +97,6 @@ class _listPageState extends State<listPage> {
   Future getAllRatings() async{
     QuerySnapshot qs = await Firestore.instance.collection('users/${widget.post.documentID}/Ratings').getDocuments();
     qs.documents.forEach((f) => rateMap['${f.documentID}']=f.data['Rate']);
-    print(rateMap);
   }
 
   Future getCartCount() async{
