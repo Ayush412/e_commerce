@@ -68,7 +68,6 @@ class _prodDescriptionState extends State<prodDescription> {
       .updateData({
         'Rate': newUserRate
       });
-      print('${oldRate.toStringAsFixed(0)} Star');
       await Firestore.instance.collection('products').document(widget.post.documentID)
       .updateData({
         '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1)
