@@ -8,7 +8,6 @@ import 'register.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class login extends StatefulWidget {
   @override
   _loginState createState() => _loginState();
@@ -24,7 +23,9 @@ class _loginState extends State<login> {
   TextEditingController passcontroller = TextEditingController();
   FocusNode node1 = FocusNode();
   FocusNode node2 = FocusNode();
-    void showdialog(){
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void showdialog(){
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Check fields again", 
           style: TextStyle(color: Colors.black)), 
           backgroundColor: Colors.orange, 
@@ -32,6 +33,7 @@ class _loginState extends State<login> {
           shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
   }
+
   bool validate1(){
     if((usercontroller.text.contains(' ') || !usercontroller.text.contains('@') || !usercontroller.text.contains('.')) && usercontroller.text.isNotEmpty && node1.hasPrimaryFocus==false)
       {
@@ -55,11 +57,10 @@ class _loginState extends State<login> {
       return false;
       }
   }
+
   void handle1(String text){
     validate1();
   }
-  
-  final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future getUserInfo() async{
    await Firestore.instance.collection('users').document(usercontroller.text).get().then((DocumentSnapshot mysnap){

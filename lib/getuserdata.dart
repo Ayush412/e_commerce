@@ -5,6 +5,8 @@ import 'login.dart';
 import 'products.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:android_intent/android_intent.dart';
 
 class getUserData extends StatefulWidget {
   final String email;
@@ -38,6 +40,62 @@ class _getUserDataState extends State<getUserData> {
   void initState() { 
     super.initState();
     getLocation();
+    checkPermission();
+  }
+
+  Map<PermissionGroup, PermissionStatus> permissions;
+  checkPermission() async{
+    permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
+    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
+    print(permission.value);
+    switch(permission.value){
+      case 0:
+      case 5:{
+        showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('Location disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble location services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => openSettings())
+                  ],
+                )
+              );
+        break;
+      }
+      case 1:{
+        showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('GPS disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble GPS services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => enableGPS())
+                  ],
+                )
+        );
+      }
+    }
+  }
+
+  enableGPS()
+  {
+    final AndroidIntent intent = new AndroidIntent(
+        action: 'android.settings.LOCATION_SOURCE_SETTINGS',);
+        intent.launch();
+    Navigator.pop(context);
+  }
+
+  openSettings() async{
+    await PermissionHandler().openAppSettings();
+    Navigator.pop(context);
+    checkPermission();
   }
 
   getPlace() async{

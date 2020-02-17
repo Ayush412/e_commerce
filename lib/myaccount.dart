@@ -8,6 +8,8 @@ import 'mycart.dart';
 import 'products.dart';
 import 'login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:android_intent/android_intent.dart';
 
 class myAccount extends StatefulWidget {
   int counter;
@@ -50,6 +52,62 @@ class _myAccountState extends State<myAccount > {
     getPlace();
   }
 
+  Map<PermissionGroup, PermissionStatus> permissions;
+  checkPermission() async{
+    permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
+    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
+    print(permission.value);
+    switch(permission.value){
+      case 0:
+      case 5:{
+        showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('Location services disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble location services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => openSettings())
+                  ],
+                )
+        );
+        break;
+      }
+      case 1:{
+        showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('GPS disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble GPS services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => enableGPS())
+                  ],
+                )
+        );
+        break;
+      }
+    }
+  }
+
+  enableGPS()
+  {
+    final AndroidIntent intent = new AndroidIntent(
+        action: 'android.settings.LOCATION_SOURCE_SETTINGS',);
+        intent.launch();
+    Navigator.pop(context);
+  }
+
+  openSettings() async{
+    await PermissionHandler().openAppSettings();
+    Navigator.pop(context);
+    checkPermission();
+  }
+
   void _onCameraMove(CameraPosition position){
     CameraPosition newPosition = CameraPosition(target: position.target);
     setState(() {
@@ -66,7 +124,8 @@ class _myAccountState extends State<myAccount > {
     });
   }
 
-  showMap(){
+  showMap() async{
+    checkPermission();
     Completer<GoogleMapController> _controller2 = Completer();
     return showDialog(
         context: context,
@@ -306,9 +365,7 @@ class _myAccountState extends State<myAccount > {
  Completer<GoogleMapController> _controller1 = Completer();
  @override
   Widget build(BuildContext context) {
-    return WillPopScope(   
-      onWillPop: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login())),
-    child: MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         key: _scaffoldKey,
@@ -519,8 +576,7 @@ class _myAccountState extends State<myAccount > {
             )
           ),
         )
-      )  
-    )   
+      )    
     );
   }
 }

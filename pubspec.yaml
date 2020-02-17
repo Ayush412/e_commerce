@@ -36,6 +36,8 @@ dependencies:
   firebase_ml_vision:
   percent_indicator:
   smooth_star_rating:
+  permission_handler:
+  android_intent:
     
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
