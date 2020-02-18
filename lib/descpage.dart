@@ -187,15 +187,17 @@ class _prodDescriptionState extends State<prodDescription> {
     });
    }
 
-   void addSnackBar(){
+   void addSnackBar() async{
      add2cart(widget.post, widget.email);
-     getCartCount();
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Item added!", 
      style: TextStyle(color: Colors.white),), 
      backgroundColor: Colors.black, 
      duration: Duration(milliseconds: 1500),
      shape: RoundedRectangleBorder(
        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
+     _timer = new Timer(const Duration(milliseconds: 800), () {
+       getCartCount();
+    }); 
      }
 
    void emptySnackBar(){

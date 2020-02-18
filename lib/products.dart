@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce/getuserdata.dart';
 import 'package:flutter/material.dart';
 import 'descpage.dart';
 import 'dart:async';
@@ -188,7 +189,13 @@ class _listPageState extends State<listPage> {
   navigateToDetail(DocumentSnapshot post, String tag){
     getAllRatings();
     String email = widget.post.documentID.toString();
-    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap)));
+    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap)))
+    .then((_) => onReturn());
+  }
+
+  onReturn(){
+    getAllRatings();
+    getCartCount();
   }
 
   Widget _shoppingCartBadge() {
@@ -419,6 +426,7 @@ class _listPageState extends State<listPage> {
                   _notifCount=0;
                   getCartCount();
                   getNotifCount();
+                  getAllRatings();
               })),
               _notifCount>0 ? _notificationBadge() : IconButton(icon: Icon(Icons.notifications), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myNotifications(widget.post.documentID, widget.post)))),
               _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))))
