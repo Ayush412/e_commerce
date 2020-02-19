@@ -93,7 +93,6 @@ class _addProductState extends State<addProduct> {
       'ProdCost': int.parse(prodCostController.text),
       'Description': prodDescriptionController.text,
       'imgurl': url,
-      'notifUrl': url,
       'scan': myList
     });
     clearAll();

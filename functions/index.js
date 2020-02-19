@@ -6,8 +6,8 @@ exports.myNotification = functions.firestore.document('products/{projectId}').on
     const prod = doc.data();
     const payload = {notification :{
         title: `The ${prod.ProdName} Just Arrived!`,
-        text: `${prod.notifurl} Grab the ${prod.ProdName} for only QR. ${prod.ProdCost}! \n\nCheck out the products page for more details.`,
-        image: `${prod.notifurl}`
+        text: `${prod.imgurl} Grab the ${prod.ProdName} for only QR. ${prod.ProdCost}! \n\nCheck out the products page for more details.`,
+        image: `${prod.imgurl}`
     }};
     admin.messaging().sendToTopic('e-commerce', payload);
 })

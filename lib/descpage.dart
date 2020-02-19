@@ -183,7 +183,6 @@ class _prodDescriptionState extends State<prodDescription> {
         break;
       }
     }
-    print((((totalRate*(totalVotes-1))+rate)/(totalVotes)).round());
     if(rate!=0){
       await Firestore.instance.collection('products').document(widget.post.documentID)
       .updateData({

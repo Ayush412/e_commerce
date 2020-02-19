@@ -67,7 +67,7 @@ class _notifDescriptionState extends State<notifDescription> {
                     child: Container(height: 200,
                       decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10), 
-                      image: DecorationImage(image: NetworkImage(imgurl), fit: BoxFit.fill)
+                      image: DecorationImage(image: NetworkImage(imgurl), fit: BoxFit.cover)
                       )
                     )
                   ),
