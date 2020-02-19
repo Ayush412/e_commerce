@@ -51,39 +51,54 @@ class _notifDescriptionState extends State<notifDescription> {
          child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(25))),
-            toolbarOpacity: 0.5,
-            elevation: 0,
-            backgroundColor: Colors.black,
-            leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white),onPressed: () => Navigator.push(context, PageTransition(type: PageTransitionType.upToDown, duration:Duration(milliseconds: 250), child: myNotifications(widget.email, widget.userpost)))),
-          ),
-          body: Stack(
-                children: <Widget>[
-                  Container(color: Colors.white,),
-                 Padding(
-                    padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Container(height: 200,
-                      decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10), 
-                      image: DecorationImage(image: NetworkImage(imgurl), fit: BoxFit.cover)
-                      )
-                    )
+          extendBody: true,
+          body: SingleChildScrollView(
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                    height:MediaQuery.of(context).size.height,
+                    decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xffffd89b), Color(0xffc4e0e5)]))),
+                    AppBar(
+                    centerTitle: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(25))),
+                    toolbarOpacity: 0.5,
+                    elevation: 0,
+                    backgroundColor: Colors.black,
+                    leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white),onPressed: () => Navigator.push(context, PageTransition(type: PageTransitionType.upToDown, duration:Duration(milliseconds: 250), child: myNotifications(widget.email, widget.userpost)))),
                   ),
-                  Positioned(
-                    top:230, left:20,
-                    child: Text(date, style: TextStyle(color: Colors.grey, fontSize: 16),)
+                  Padding(
+                    padding: const EdgeInsets.only(top:80),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                       Center(
+                         child: Padding(
+                              padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+                              child: Container(height: 250, width:350,
+                                decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10), 
+                                image: DecorationImage(image: NetworkImage(imgurl), fit: BoxFit.cover)
+                                )
+                              )
+                          ),
+                       ),
+                        Padding(
+                            padding: const EdgeInsets.only(top:20, left:10),
+                            child: Text(date, style: TextStyle(color: Color(0xff19547b), fontSize: 16))
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.only(top:30, left:20, right:20),
+                            child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.only(top:40, left:20, right:20),
+                            child: Text(text, style: TextStyle(fontSize: 18, color: Colors.black54))
+                        ),
+                      ],
+              ),
                   ),
-                  Positioned(
-                    top: 260, left:30, right: 30,
-                    child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))
-                  ),
-                  Positioned(
-                    top: 340, left:30, right: 30,
-                    child: Text(text, style: TextStyle(fontSize: 18, color: Colors.black54))
-                  ),
-                ],
+            ],
+                      ),
           )
         ),
         

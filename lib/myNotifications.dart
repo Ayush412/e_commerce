@@ -131,7 +131,7 @@ class _myNotificationsState extends State<myNotifications> {
                                         return Padding(
                                           padding: const EdgeInsets.only(top:6.0),
                                           child: Container(height: 250,
-                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
+                                          decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xffffd89b), Color(0xffc4e0e5)]), borderRadius: BorderRadius.circular(25)),
                                             child: GestureDetector(
                                               onTap: () => navigateToDetail(snapshot.data[index]),
                                                 child: Card(
