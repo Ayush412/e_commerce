@@ -187,7 +187,7 @@ class _addProductState extends State<addProduct> {
   Widget build(BuildContext context) {
     pr = new ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false);
     pr.style(
-          message: 'Please wait...',
+          message: 'Adding product...',
           borderRadius: 10.0,
           backgroundColor: Colors.white,
           progressWidget: CircularProgressIndicator(),

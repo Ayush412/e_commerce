@@ -64,7 +64,7 @@ class _prodDescriptionState extends State<prodDescription> {
 
   Future updateRating() async{
     double oldRate=userRate;
-    await giveRating();
+    await giveRating(1);
     if(oldRate==newUserRate)
     {
       await Firestore.instance.collection('products').document(widget.post.documentID)
@@ -79,9 +79,10 @@ class _prodDescriptionState extends State<prodDescription> {
       });
       await Firestore.instance.collection('products').document(widget.post.documentID)
       .updateData({
-        '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1)
+        '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1),
       });
     }
+    await refreshRate();
   }
    
    Future getCartCount() async{
@@ -143,7 +144,7 @@ class _prodDescriptionState extends State<prodDescription> {
      return Padding(
               padding: const EdgeInsets.only(top:10, left:65),
               child: GestureDetector(
-                onTap: () => giveRating(),
+                onTap: () => giveRating(0),
                 child: Container(
                   height: 30, width:100,
                   decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(20)),
@@ -153,7 +154,7 @@ class _prodDescriptionState extends State<prodDescription> {
     );
    }
 
-   Future setUserRating(int rate) async{
+   Future setUserRating(int rate, int upd) async{
     Navigator.pop(context);
     int count;
     switch(rate){
@@ -182,11 +183,12 @@ class _prodDescriptionState extends State<prodDescription> {
         break;
       }
     }
+    print((((totalRate*(totalVotes-1))+rate)/(totalVotes)).round());
     if(rate!=0){
       await Firestore.instance.collection('products').document(widget.post.documentID)
-    .updateData({
+      .updateData({
       '$rate Star': count+1,
-      'Rate': (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
+      'Rate': upd==1? (((totalRate*(totalVotes-1))+rate)/(totalVotes)).round() : (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
     });
     await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
     .setData({
@@ -318,7 +320,7 @@ class _prodDescriptionState extends State<prodDescription> {
     );
    }
 
-  giveRating(){
+  giveRating(int val){
     return showDialog(
       context: context,
       builder: (c) => StatefulBuilder(
@@ -360,7 +362,7 @@ class _prodDescriptionState extends State<prodDescription> {
             )
           ),
           actions: <Widget>[
-            FlatButton( child: Text('Ok'), onPressed: () => setUserRating(newUserRate.toInt())
+            FlatButton( child: Text('Ok'), onPressed: () => setUserRating(newUserRate.toInt(), val)
             )
           ],
         );
@@ -373,7 +375,7 @@ class _prodDescriptionState extends State<prodDescription> {
   Widget build(BuildContext context) {
     pr = new ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false);
     pr.style(
-          message: 'Please wait...',
+          message: 'Deleting product...',
           borderRadius: 10.0,
           backgroundColor: Colors.white,
           progressWidget: CircularProgressIndicator(),
@@ -435,7 +437,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                   children: <Widget>[
                                     Padding(
                                       padding: const EdgeInsets.only(left:90),
-                                      child: stars(25,widget.post.data['Rate'].toDouble(), 5, Color(0xFFe8b430)),
+                                      child: stars(25,totalRate, 5, Color(0xFFe8b430)),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(left:65),
