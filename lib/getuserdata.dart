@@ -33,16 +33,8 @@ class _getUserDataState extends State<getUserData> {
   bool visible = false;
   String mylocation='Choose a location';
   GoogleMap map;
-
   Geolocator geolocator = Geolocator();
-
-  @override
-  void initState() { 
-    super.initState();
-    getLocation();
-    checkPermission();
-  }
-
+  
   Map<PermissionGroup, PermissionStatus> permissions;
   checkPermission() async{
     permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
