@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_commerce/getuserdata.dart';
 import 'package:flutter/material.dart';
 import 'descpage.dart';
 import 'dart:async';
@@ -13,6 +12,7 @@ import 'myNotifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'scanToSearch.dart';
+import 'addProduct.dart';
 
 class listPage extends StatefulWidget {
 
@@ -44,6 +44,7 @@ class _listPageState extends State<listPage> {
   int rate5=0;
   int starRate=0;
   int totalVotes=0;
+  int admin;
   double totalRate=0;
   Map<String, double> rateMap = Map<String, double>();
   @override
@@ -93,6 +94,7 @@ class _listPageState extends State<listPage> {
       getCartCount();
       getNotifCount();
     }); 
+    admin=widget.post.data['Admin'];
   }
 
   Future getAllRatings() async{
@@ -190,12 +192,29 @@ class _listPageState extends State<listPage> {
     getAllRatings();
     String email = widget.post.documentID.toString();
     Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap)))
-    .then((_) => onReturn());
+    .then((value) => admin==1? onReturnAdmin(value,800) : onReturn());
   }
 
   onReturn(){
     getAllRatings();
     getCartCount();
+  }
+
+  onReturnAdmin(int value, int time){
+     if(value==1){
+       _timer = new Timer(time==0? const Duration(milliseconds: 0): const Duration(milliseconds: 800), () {
+        setState(() {
+          data=getData();
+          catVal2=null;
+          subcatVal2=null;
+          topdata=getTopData(catVal2);
+          subcatVal=null;
+          catVal=null;
+        });
+     });
+     }
+     else
+     return 0;
   }
 
   Widget _shoppingCartBadge() {
@@ -237,8 +256,9 @@ class _listPageState extends State<listPage> {
                 Padding(padding: EdgeInsets.all(8),
                 child:Icon(Icons.account_circle, color: Colors.white),),
                 Padding(padding: EdgeInsets.all(2),
-                child: Text("${widget.post.data['FName']} ${widget.post.data['LName']}", 
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20)))  
+                child: Text(admin==1? "${widget.post.data['FName']} [ADMIN]" : "${widget.post.data['FName']}", 
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20)),
+                )  
               ],),
             )
             ),
@@ -250,13 +270,13 @@ class _listPageState extends State<listPage> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myAccount(post: widget.post, counter: _counter,))),
+                        onTap: () => admin==1 ? Navigator.push(context, MaterialPageRoute(builder: (context) => addProduct(post: widget.post))).then((value)=>onReturnAdmin(value,0)) : Navigator.push(context, MaterialPageRoute(builder: (context) => myAccount(post: widget.post, counter: _counter))),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.black,
                       child: Stack(
                         children: <Widget>[
-                        Center(child: Text('My Account', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),)),
+                        Center(child: Text(admin==1 ? 'Add Product' : 'My Account', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),)),
                         Positioned(
                           left:17,
                           top:14,
@@ -267,7 +287,7 @@ class _listPageState extends State<listPage> {
                     ),
                 ),
               ),
-              Padding(
+              admin==1 ? Container() : Padding(
                 padding: const EdgeInsets.only(top: 25.0),
                 child: Container(
                       width:250,
@@ -312,7 +332,7 @@ class _listPageState extends State<listPage> {
                           top:14,
                           child: Icon(Icons.camera_alt, color: Colors.grey,)
                         ),
-                        Positioned(
+                        admin==1? Container() : Positioned(
                           right:14, top:5,
                           child:Container(
                             height:15,
@@ -328,7 +348,7 @@ class _listPageState extends State<listPage> {
                   ),
                 ),
               Padding(
-                padding: const EdgeInsets.only(top: 210),
+                padding: admin==1? const EdgeInsets.only(top:295) : const EdgeInsets.only(top:210),
                 child: Container(
                       alignment: Alignment.bottomCenter,
                       width:180,
@@ -416,7 +436,7 @@ class _listPageState extends State<listPage> {
             elevation: 0,
             actions: <Widget>[
               IconButton(icon: Icon(Icons.refresh),
-              onPressed: () => setState((){
+              onPressed: () => admin==1? onReturnAdmin(1,0) : setState((){
                   data=getData();
                   catVal2=null;
                   subcatVal2=null;
@@ -428,8 +448,8 @@ class _listPageState extends State<listPage> {
                   getNotifCount();
                   getAllRatings();
               })),
-              _notifCount>0 ? _notificationBadge() : IconButton(icon: Icon(Icons.notifications), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myNotifications(widget.post.documentID, widget.post)))),
-              _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))))
+              admin==1? Container() : _notifCount>0 ? _notificationBadge() : IconButton(icon: Icon(Icons.notifications), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => myNotifications(widget.post.documentID, widget.post)))),
+              admin==1? Container() : _counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))))
             ],
             backgroundColor: Colors.black,
             leading: IconButton(icon: Icon(Icons.settings, color: Colors.white),onPressed: () => _scaffoldKey.currentState.openDrawer()),
@@ -461,49 +481,53 @@ class _listPageState extends State<listPage> {
                       );
                     else
                     {
-                      return CarouselSlider.builder(
-                        autoPlay: false,
-                        itemCount: topsnap.data.length,
-                        itemBuilder: (BuildContext context, int index) =>
-                        Padding(
-                          padding: const EdgeInsets.only(top:30.0),
-                          child: Container(
-                                decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(20)),
-                                width: 320,
-                                child: GestureDetector(
-                                      onTap: () => navigateToDetail(topsnap.data[index], 'card${topsnap.data[index].documentID}'),
-                                      child: Card(
-                                        elevation: 0,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Positioned(
-                                            top: 5, left: 20,
-                                            child: Text(topsnap.data[index].data['ProdName'], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
-                                          ),
-                                          Center(
-                                            child: Hero(
-                                              tag: 'card${topsnap.data[index].documentID}',
-                                              child: Image.network(topsnap.data[index].data['imgurl'], height:120, width:120)),
-                                          ),
-                                          Positioned(
-                                            top: 165, left:20,
-                                            child: Text('QR. ${topsnap.data[index].data['ProdCost']}', style: TextStyle(fontSize: 18),)
-                                          ),
-                                          Positioned(
-                                            top:160,
-                                            right:20,
-                                            child: Container(
-                                              height:25,
-                                              width: 80,
-                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.green),
-                                              child: Center(child: Text("Buy Now", style: TextStyle(color: Colors.white),))
-                                            )
-                                          ),
-                                        ],
-                                      )
-                                  ),
-                                )
+                      return AnimatedOpacity(
+                        duration: Duration(milliseconds: 300),
+                        opacity: oplevel,
+                         child: CarouselSlider.builder(
+                          autoPlay: false,
+                          itemCount: topsnap.data.length,
+                          itemBuilder: (BuildContext context, int index) =>
+                          Padding(
+                            padding: const EdgeInsets.only(top:30.0),
+                            child: Container(
+                                  decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(20)),
+                                  width: 320,
+                                  child: GestureDetector(
+                                        onTap: () => navigateToDetail(topsnap.data[index], 'card${topsnap.data[index].documentID}'),
+                                        child: Card(
+                                          elevation: 0,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                        child: Stack(
+                                          children: <Widget>[
+                                            Positioned(
+                                              top: 5, left: 20,
+                                              child: Text(topsnap.data[index].data['ProdName'], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+                                            ),
+                                            Center(
+                                              child: Hero(
+                                                tag: 'card${topsnap.data[index].documentID}',
+                                                child: Image.network(topsnap.data[index].data['imgurl'], height:120, width:120)),
+                                            ),
+                                            Positioned(
+                                              top: 165, left:20,
+                                              child: Text('QR. ${topsnap.data[index].data['ProdCost']}', style: TextStyle(fontSize: 18),)
+                                            ),
+                                            Positioned(
+                                              top:160,
+                                              right:20,
+                                              child: Container(
+                                                height:25,
+                                                width: 80,
+                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.green),
+                                                child: Center(child: Text("Buy Now", style: TextStyle(color: Colors.white),))
+                                              )
+                                            ),
+                                          ],
+                                        )
+                                    ),
+                                  )
+                            ),
                           ),
                         ),
                       );

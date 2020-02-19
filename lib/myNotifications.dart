@@ -142,7 +142,7 @@ class _myNotificationsState extends State<myNotifications> {
                                                     Padding(
                                                     padding: const EdgeInsets.only(top:70),
                                                     child: Container(height: 200, decoration: BoxDecoration(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)), 
-                                                    image: DecorationImage(image: NetworkImage(snapshot.data[index].data['imgurl']), fit: BoxFit.fill)))
+                                                    image: DecorationImage(image: NetworkImage(snapshot.data[index].data['imgurl']), fit: BoxFit.cover)))
                                                     ),
                                                    ListTile(
                                                      contentPadding: EdgeInsets.only(left:20, right:30),

@@ -227,7 +227,8 @@ class _getUserDataState extends State<getUserData> {
       'Address': addresscontroller.text,
       'Mob': int.parse(mobcontroller.text),
       'Latitude': lat,
-      'Longitude': lng 
+      'Longitude': lng,
+      'Admin': 0
     });
     setState(() {
       visible=false;

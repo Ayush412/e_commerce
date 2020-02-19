@@ -20,24 +20,27 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_auth: 
-  cloud_firestore: 
   cached_network_image:
   page_transition:
   badges: 
   flutter_launcher_icons:
-  firebase_messaging: 
-  date_format:
+  cloud_firestore:
+  firebase_messaging:
+  firebase_storage: 
   firebase_database:
+  firebase_ml_vision:
+  date_format:
   shared_preferences:
   carousel_slider:
   google_maps_flutter:
   geolocator:
   image_picker:
-  firebase_ml_vision:
   percent_indicator:
   smooth_star_rating:
   permission_handler:
   android_intent:
+  progress_dialog:
+  
     
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -67,6 +70,7 @@ flutter:
     - null.jpg
     - search.png
     - scan.png
+    - upload.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -83,6 +83,12 @@ class _prodDescriptionState extends State<prodDescription> {
     });
    }
 
+   Future deleteItem() async{
+     Navigator.pop(context);
+     await Firestore.instance.collection('products').document(widget.post.documentID).delete();
+     goBack(1);
+   }
+
    Future getUserRating() async{
      await Firestore.instance.collection('/users/${widget.email}/Ratings').document(widget.post.documentID).get().then((DocumentSnapshot snap){
        
@@ -106,7 +112,7 @@ class _prodDescriptionState extends State<prodDescription> {
         rate4=data.data['4 Star'];
         rate5=data.data['5 Star'];
         totalVotes=rate1+rate2+rate3+rate4+rate5;
-        totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+        totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
        });
      });
    }
@@ -208,6 +214,31 @@ class _prodDescriptionState extends State<prodDescription> {
      shape: RoundedRectangleBorder(
        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
    }
+
+   warning(){
+    return showDialog(
+      context: context,
+      builder: (c) => StatefulBuilder(
+          builder:(context, setState){
+          return AlertDialog(
+            title: Text('Warning!'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Text('Confirm product deletion?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.pop(c, false),
+              ),
+              FlatButton(
+                child: Text('Confirm'),
+                onPressed: () => deleteItem(),
+              )
+            ],
+          );
+          }
+      )
+    );
+   }
   
 
   @override
@@ -222,7 +253,7 @@ class _prodDescriptionState extends State<prodDescription> {
     rate4=data.data['4 Star'];
     rate5=data.data['5 Star'];
     totalVotes=rate1+rate2+rate3+rate4+rate5;
-    totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+    totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
     _timer = new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         oplevel=1;
@@ -236,11 +267,11 @@ class _prodDescriptionState extends State<prodDescription> {
      _timer.cancel();
    }
   
-   goBack(){
+   goBack(int val){
      setState(() {
        oplevel=0;
      });
-     Navigator.pop(context);
+     Navigator.pop(context, val);
    }
 
    Widget stars(double size, double rate, int count, Color color){
@@ -257,14 +288,14 @@ class _prodDescriptionState extends State<prodDescription> {
    }
 
    Widget progress(int rate){
-     double per = (rate*100)/totalVotes;
+     double per = totalVotes==0? 0 : (rate*100)/totalVotes;
      return Padding(
       padding: EdgeInsets.only(top: 10, left:15),
       child: Row(
         children: <Widget>[
           LinearPercentIndicator(
             width: 220,
-            percent: (rate/totalVotes),
+            percent: totalVotes==0? 0 :(rate/totalVotes),
             backgroundColor: Colors.grey,
             progressColor: Colors.grey[50],
           ),
@@ -328,7 +359,7 @@ class _prodDescriptionState extends State<prodDescription> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-          onWillPop: () => goBack(),
+          onWillPop: () => goBack(0),
           child: MaterialApp(
           debugShowCheckedModeBanner: false,
           home: Scaffold(
@@ -340,11 +371,12 @@ class _prodDescriptionState extends State<prodDescription> {
               toolbarOpacity: 0.5,
               elevation: 0,
               actions: <Widget>[
+                widget.userpost.data['Admin']==1? Container():
                 counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID, counter: widget.counter,))))
 
               ],
               backgroundColor: Colors.black,
-              leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack()),
+              leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack(0)),
               title: Text(widget.post.data['ProdName'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
             ),
             body: SingleChildScrollView(
@@ -383,7 +415,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                       padding: const EdgeInsets.only(left:65),
                                       child: Text('$totalVotes ratings', style: TextStyle(color: Colors.white)),
                                     ),
-                                    userRate.toInt()==0? rateButton() : showRate(),
+                                    widget.userpost.data['Admin']==1? Container() : userRate.toInt()==0? rateButton() : showRate(),
                                   ],
                                 ),
                               ),
@@ -400,8 +432,8 @@ class _prodDescriptionState extends State<prodDescription> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Text(totalRate.toStringAsFixed(1), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 34)),
-                              Text('out of 5', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 16)),
+                              Text(totalVotes==0? 'None': totalRate.toStringAsFixed(1), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 34)),
+                              Text(totalVotes==0? '' : 'out of 5', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 16)),
                             ],
                           )),
                         Padding(padding: const EdgeInsets.only(top: 10, left:5),
@@ -443,11 +475,11 @@ class _prodDescriptionState extends State<prodDescription> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                          onTap: () => stock>0 ? addSnackBar(): emptySnackBar(),
+                          onTap: () => widget.userpost.data['Admin']==1? warning() : stock>0 ? addSnackBar(): emptySnackBar(),
                           child: Card(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                              color: stock>0 ? Colors.green : Colors.orange,
-                              child: Center(child: Text(stock>0 ? 'Add To Cart' : 'Check back later', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 26),))
+                              color: widget.userpost.data['Admin']==1? Colors.red : stock>0 ? Colors.green : Colors.orange,
+                              child: Center(child: Text(widget.userpost.data['Admin']==1? 'Delete Product' : stock>0 ? 'Add To Cart' : 'Check back later', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 26),))
                           ),
                     ),
                   ),
