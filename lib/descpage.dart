@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'add2cart.dart';
 import 'mycart.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class prodDescription extends StatefulWidget {
 int counter;
@@ -38,6 +40,8 @@ class _prodDescriptionState extends State<prodDescription> {
   double newUserRate=0;
   double totalRate=0;
   DocumentSnapshot data;
+  StorageReference storageRef;
+  ProgressDialog pr;
   
   Widget _shoppingCartBadge() {
     return Badge(
@@ -51,6 +55,11 @@ class _prodDescriptionState extends State<prodDescription> {
       child: IconButton(icon: Icon(Icons.shopping_cart),       
       onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.userpost.documentID, counter: widget.counter,))),),
     );
+  }
+
+  Future deleteImage() async{
+    storageRef = await FirebaseStorage.instance.getReferenceFromUrl(widget.post.data['imgurl']);
+    await storageRef.delete();
   }
 
   Future updateRating() async{
@@ -85,7 +94,10 @@ class _prodDescriptionState extends State<prodDescription> {
 
    Future deleteItem() async{
      Navigator.pop(context);
+     pr.show();
      await Firestore.instance.collection('products').document(widget.post.documentID).delete();
+     await deleteImage();
+     pr.hide();
      goBack(1);
    }
 
@@ -243,6 +255,7 @@ class _prodDescriptionState extends State<prodDescription> {
 
   @override
   void initState() { 
+    super.initState();
     userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
     data=widget.post;
     counter=widget.counter;
@@ -358,6 +371,19 @@ class _prodDescriptionState extends State<prodDescription> {
    
   @override
   Widget build(BuildContext context) {
+    pr = new ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false);
+    pr.style(
+          message: 'Please wait...',
+          borderRadius: 10.0,
+          backgroundColor: Colors.white,
+          progressWidget: CircularProgressIndicator(),
+          elevation: 10.0,
+          insetAnimCurve: Curves.easeInOut,
+          progressTextStyle: TextStyle(
+              color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+          messageTextStyle: TextStyle(
+              color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600),
+        ); 
     return WillPopScope(
           onWillPop: () => goBack(0),
           child: MaterialApp(

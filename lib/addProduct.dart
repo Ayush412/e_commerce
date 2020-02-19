@@ -51,6 +51,14 @@ class _addProductState extends State<addProduct> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => listPage(post: widget.post,)));
   }
 
+  Future getImage() async{
+    File newFile;
+    newFile =  await ImagePicker.pickImage(source: ImageSource.gallery);
+    if(newFile!=null)
+      imageFile=newFile;
+    setState(() {});
+  }
+
   Future putImage() async{
     storageRef = FirebaseStorage.instance.ref().child('product images/${prodNameController.text} ${Random().nextInt(10000)}-${Random().nextInt(10000)}-${prodCostController.text}.jpg');
     StorageUploadTask upload = storageRef.putFile(imageFile);
@@ -166,11 +174,6 @@ class _addProductState extends State<addProduct> {
       myList.clear();
       desc='';
     });
-  }
-
-  Future getImage() async{
-    imageFile =  await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {});
   }
 
   checkBeforeExit(){
