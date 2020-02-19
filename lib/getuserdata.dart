@@ -34,76 +34,6 @@ class _getUserDataState extends State<getUserData> {
   String mylocation='Choose a location';
   GoogleMap map;
   Geolocator geolocator = Geolocator();
-  
-  Map<PermissionGroup, PermissionStatus> permissions;
-  checkPermission() async{
-    permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
-    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
-    print(permission.value);
-    switch(permission.value){
-      case 0:
-      case 5:{
-        await showDialog(
-                context: context,
-                builder: (c) => AlertDialog(
-                  title: Text('Location disabled'),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                  content: Text("Please enble location services"),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => Navigator.pop(c, false)
-                    ),
-                    FlatButton(
-                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => openSettings()
-                    )
-                  ],
-                )
-              );
-        break;
-      }
-      case 1:{
-        await showDialog(
-                context: context,
-                builder: (c) => AlertDialog(
-                  title: Text('GPS disabled'),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                  content: Text("Please enble GPS services"),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => Navigator.pop(c, false)
-                    ),
-                    FlatButton(
-                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
-                      onPressed: () => enableGPS()
-                    )
-                  ],
-                )
-        );
-        break;
-      }
-      case 2:{
-        showMap();
-        break;
-      }
-    }
-  }
-
-  enableGPS()
-  {
-    final AndroidIntent intent = new AndroidIntent(
-        action: 'android.settings.LOCATION_SOURCE_SETTINGS',);
-        intent.launch();
-    Navigator.pop(context);
-  }
-
-  openSettings() async{
-    await PermissionHandler().openAppSettings();
-    Navigator.pop(context);
-    await checkPermission();
-  }
 
   getPlace() async{
     List<Placemark> p = await Geolocator().placemarkFromCoordinates(lat,lng);
@@ -133,7 +63,6 @@ class _getUserDataState extends State<getUserData> {
 
 
   showMap() async{
-    await checkPermission();
     Completer<GoogleMapController> _controller2 = Completer();
     return showDialog(
         context: context,
@@ -178,6 +107,77 @@ class _getUserDataState extends State<getUserData> {
     Navigator.pop(context);
     newlat=0;
     newlng=0;
+  }
+
+
+  Map<PermissionGroup, PermissionStatus> permissions;
+  Future checkPermission() async{
+    permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
+    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
+    print(permission.value);
+    switch(permission.value){
+      case 0:
+      case 5:{
+        await showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('Location services disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble location services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => openSettings()
+                    )
+                  ],
+                )
+        );
+        break;
+      }
+      case 1:{
+        await showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: Text('GPS disabled'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  content: Text("Please enble GPS services"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => Navigator.pop(c, false)
+                    ),
+                    FlatButton(
+                      child: Text('OK', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)), 
+                      onPressed: () => enableGPS()
+                    )
+                  ],
+                )
+        );
+        break;
+      }
+      case 2:{
+        showMap();
+        break;
+      }
+    }
+  }
+
+  enableGPS()
+  {
+    final AndroidIntent intent = new AndroidIntent(
+        action: 'android.settings.LOCATION_SOURCE_SETTINGS',);
+        intent.launch();
+    Navigator.pop(context);
+  }
+
+  openSettings() async{
+    await PermissionHandler().openAppSettings();
+    Navigator.pop(context);
+    await checkPermission();
   }
 
   Future <void> updateMap() async {
@@ -385,7 +385,7 @@ class _getUserDataState extends State<getUserData> {
                           right: 7,
                           child: IconButton(icon: Icon(Icons.edit, size: 25,),  
                           color: Colors.black,
-                          onPressed: () =>  checkPermission())
+                          onPressed: () => checkPermission())
                         ), 
                         Positioned(
                           top: 40, right:20,
