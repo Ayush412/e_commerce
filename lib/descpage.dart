@@ -15,8 +15,9 @@ final String email;
 final DocumentSnapshot post;
 final DocumentSnapshot userpost;
 Map<String, double> map = Map<String, double>();
+List<String> list = List<String>();
 String tag;
-prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, this.map});
+prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, this.map, this.list});
   @override
   _prodDescriptionState createState() => _prodDescriptionState();
 }
@@ -36,6 +37,7 @@ class _prodDescriptionState extends State<prodDescription> {
   int rate4=0;
   int rate5=0;
   int totalVotes=0;
+  int views;
   double userRate;
   double newUserRate=0;
   double totalRate=0;
@@ -62,6 +64,14 @@ class _prodDescriptionState extends State<prodDescription> {
     await storageRef.delete();
   }
 
+  Future addView() async{
+    await Firestore.instance.collection('users/${widget.email}/Visited').document(widget.post.documentID).setData({});
+    await Firestore.instance.collection('products').document(widget.post.documentID)
+    .updateData({
+      'Views': FieldValue.increment(1)
+    });
+  }
+
   Future updateRating() async{
     double oldRate=userRate;
     await giveRating(1);
@@ -73,7 +83,7 @@ class _prodDescriptionState extends State<prodDescription> {
       });
     }
     else{
-      await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
+      await Firestore.instance.collection('users/${widget.email}/Visited').document(widget.post.documentID)
       .updateData({
         'Rate': newUserRate
       });
@@ -103,7 +113,7 @@ class _prodDescriptionState extends State<prodDescription> {
    }
 
    Future getUserRating() async{
-     await Firestore.instance.collection('/users/${widget.email}/Ratings').document(widget.post.documentID).get().then((DocumentSnapshot snap){
+     await Firestore.instance.collection('/users/${widget.email}/Visited').document(widget.post.documentID).get().then((DocumentSnapshot snap){
        
        if(snap.data!=null)
         setState(() {
@@ -124,6 +134,7 @@ class _prodDescriptionState extends State<prodDescription> {
         rate3=data.data['3 Star'];
         rate4=data.data['4 Star'];
         rate5=data.data['5 Star'];
+        views=data.data['Views'];
         totalVotes=rate1+rate2+rate3+rate4+rate5;
         totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
        });
@@ -189,7 +200,7 @@ class _prodDescriptionState extends State<prodDescription> {
       '$rate Star': count+1,
       'Rate': upd==1? (((totalRate*(totalVotes-1))+rate)/(totalVotes)).round() : (((totalRate*totalVotes)+rate)/(totalVotes+1)).round()
     });
-    await Firestore.instance.collection('users/${widget.email}/Ratings').document(widget.post.documentID)
+    await Firestore.instance.collection('users/${widget.email}/Visited').document(widget.post.documentID)
     .setData({
       'Rate': newUserRate
     });
@@ -266,8 +277,11 @@ class _prodDescriptionState extends State<prodDescription> {
     rate3=data.data['3 Star'];
     rate4=data.data['4 Star'];
     rate5=data.data['5 Star'];
+    views=data.data['Views'];
     totalVotes=rate1+rate2+rate3+rate4+rate5;
     totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+    if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
+      addView();
     _timer = new Timer(const Duration(milliseconds: 300), () {
       setState(() {
         oplevel=1;
@@ -409,11 +423,37 @@ class _prodDescriptionState extends State<prodDescription> {
             body: SingleChildScrollView(
                           child: Center(
                 child: Column(children: <Widget>[
-                  Hero(
-                    tag: widget.tag.contains('card') ? 'card${widget.post.documentID}' : '${widget.post.documentID}',
-                    child: Image.network(widget.post.data['imgurl'], height:300, width:300)
+                  Padding(
+                    padding: const EdgeInsets.only(top:25, bottom:10),
+                    child: Hero(
+                      tag: widget.tag.contains('card') ? 'card${widget.post.documentID}' : '${widget.post.documentID}',
+                      child: Image.network(widget.post.data['imgurl'], height:300, width:300)
+                    ),
                   ),
-                  Padding(padding: EdgeInsets.only(top:15),
+                  AnimatedOpacity(
+                    duration: Duration(milliseconds: 500),
+                    opacity: oplevel,
+                      child: Container(
+                      height: 30,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right:15),
+                          child: Container(
+                            height:25,
+                            decoration: BoxDecoration(color: Color(0xffffc966), borderRadius: BorderRadius.circular(20)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(left:10, right:10, top:3),
+                                child: Text(views==null? 'No views' : views==1? "$views view" : '$views views', 
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black)
+                                ),
+                              ),
+                          ),
+                        )
+                      ),
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.only(top:5),
                   child: Container(
                       width:380,
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
@@ -449,7 +489,7 @@ class _prodDescriptionState extends State<prodDescription> {
                             ],
                           )),
                         Padding(padding: const EdgeInsets.only(left:15),
-                          child: Text(stock>0 ? ('In stock') : 'Out of stock!', style: TextStyle(color: stock>0 ? Colors.green : Colors.red, fontWeight: FontWeight.bold, fontSize: 18)),
+                          child: Text(stock>0 ? 'In stock' : 'Out of stock!', style: TextStyle(color: stock>0 ? Colors.green : Colors.red, fontWeight: FontWeight.bold, fontSize: 18)),
                         ),
                         Padding(padding: const EdgeInsets.only(top:30, left:10, right:10),
                           child: Divider(height: 0.2, color: Colors.grey,)),

@@ -114,7 +114,6 @@ class _getUserDataState extends State<getUserData> {
   Future checkPermission() async{
     permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
     PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
-    print(permission.value);
     switch(permission.value){
       case 0:
       case 5:{

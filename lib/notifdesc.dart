@@ -31,7 +31,6 @@ class _notifDescriptionState extends State<notifDescription> {
     .updateData({
       'Read': 1
     });
-    print(text);
   } 
 
 @override

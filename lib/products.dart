@@ -47,6 +47,8 @@ class _listPageState extends State<listPage> {
   int admin;
   double totalRate=0;
   Map<String, double> rateMap = Map<String, double>();
+  List<String> viewedList = List<String>();
+
   @override
   void initState() { 
     super.initState();
@@ -98,8 +100,14 @@ class _listPageState extends State<listPage> {
   }
 
   Future getAllRatings() async{
-    QuerySnapshot qs = await Firestore.instance.collection('users/${widget.post.documentID}/Ratings').getDocuments();
-    qs.documents.forEach((f) => rateMap['${f.documentID}']=f.data['Rate']);
+    QuerySnapshot qs = await Firestore.instance.collection('users/${widget.post.documentID}/Visited').getDocuments();
+    qs.documents.forEach((f){ 
+      if(!viewedList.contains(f.documentID))
+      viewedList.add(f.documentID);
+      if(f.data['Rate']!=null)
+      rateMap['${f.documentID}']=f.data['Rate'];
+      }
+    );
   }
 
   Future getCartCount() async{
@@ -116,6 +124,11 @@ class _listPageState extends State<listPage> {
     setState(() {
       _notifCount= _docCount.length;
     });  
+  }
+
+  Future getViews() async{
+    QuerySnapshot qs = await Firestore.instance.collection('users/${widget.post.documentID}/Views').getDocuments();
+    qs.documents.forEach((f) => rateMap['${f.documentID}']=f.data['Rate']);
   }
 
   @override
@@ -191,7 +204,7 @@ class _listPageState extends State<listPage> {
   navigateToDetail(DocumentSnapshot post, String tag){
     getAllRatings();
     String email = widget.post.documentID.toString();
-    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap)))
+    Navigator.push(context, PageRouteBuilder(transitionDuration: Duration(milliseconds:600) ,pageBuilder: (_,__,___)=> prodDescription(post: post, email: email, counter: _counter, userpost: widget.post, tag: tag, map: rateMap, list: viewedList)))
     .then((value) => admin==1? onReturnAdmin(value,800) : onReturn());
   }
 
@@ -348,7 +361,7 @@ class _listPageState extends State<listPage> {
                   ),
                 ),
               Padding(
-                padding: admin==1? const EdgeInsets.only(top:295) : const EdgeInsets.only(top:210),
+                padding: admin==1? const EdgeInsets.only(top:295) : const EdgeInsets.only(top:180),
                 child: Container(
                       alignment: Alignment.bottomCenter,
                       width:180,

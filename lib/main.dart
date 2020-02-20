@@ -36,7 +36,6 @@ class _MyAppState extends State<MyApp> {
   Future afterSplash () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     email = prefs.getString('email');
-    print(email);
     if(email==null)
       Navigator.push(context, PageTransition(type: PageTransitionType.fade, duration:Duration(milliseconds: 300), child: login()));
     else {

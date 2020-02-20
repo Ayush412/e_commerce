@@ -75,7 +75,6 @@ class _loginState extends State<login> {
   saveData() async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
      prefs.setString('email', usercontroller.text);
-     print(prefs.getString('email'));
   }
 
   Future checklogin() async{
