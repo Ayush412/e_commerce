@@ -25,10 +25,8 @@ prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, t
 class _prodDescriptionState extends State<prodDescription> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  double oplevel=0;
   int onpage=0;
   int counter;
-  Timer _timer;
   int stock;
   int quantity=1;
   int rate1=0;
@@ -38,12 +36,64 @@ class _prodDescriptionState extends State<prodDescription> {
   int rate5=0;
   int totalVotes=0;
   int views;
+  double oplevel=0;
   double userRate;
   double newUserRate=0;
   double totalRate=0;
   DocumentSnapshot data;
   StorageReference storageRef;
   ProgressDialog pr;
+  TextEditingController stockController = TextEditingController();
+  TextEditingController costController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController descController = TextEditingController();
+  FocusNode node1 = FocusNode();
+  FocusNode node2 = FocusNode();
+  FocusNode node3 = FocusNode();
+  FocusNode node4 = FocusNode();
+  Timer _timer;
+  bool editOK=true;
+  String name;
+  String cost;
+  String desc;
+
+  @override
+  void initState() { 
+    super.initState();
+    userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
+    data=widget.post;
+    counter=widget.counter;
+    stock=data.data['Stock'];
+    rate1=data.data['1 Star'];
+    rate2=data.data['2 Star'];
+    rate3=data.data['3 Star'];
+    rate4=data.data['4 Star'];
+    rate5=data.data['5 Star'];
+    views=data.data['Views'];
+    totalVotes=rate1+rate2+rate3+rate4+rate5;
+    totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+    name=data.data['ProdName'];
+    cost=data.data['ProdCost'].toString();
+    desc=data.data['Description'];
+    nameController = TextEditingController(text: name);
+    stockController = TextEditingController(text: stock.toString());
+    costController = TextEditingController(text: cost);
+    descController = TextEditingController(text: desc);
+
+    if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
+      addView();
+    _timer = new Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        oplevel=1;
+      });
+    });
+  }
+  
+    @override
+   void dispose(){
+     super.dispose();
+     _timer.cancel();
+   }
   
   Widget _shoppingCartBadge() {
     return Badge(
@@ -137,6 +187,14 @@ class _prodDescriptionState extends State<prodDescription> {
         views=data.data['Views'];
         totalVotes=rate1+rate2+rate3+rate4+rate5;
         totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
+        name=data.data['ProdName'];
+        cost=data.data['ProdCost'].toString();
+        desc=data.data['Description'];
+        nameController = TextEditingController(text: name);
+        stockController = TextEditingController(text: stock.toString());
+        costController = TextEditingController(text: cost);
+        descController = TextEditingController(text: desc);
+        editOK=true;
        });
      });
    }
@@ -217,11 +275,34 @@ class _prodDescriptionState extends State<prodDescription> {
     });
    }
 
-   void addSnackBar() async{
+   Future changeData() async{
+     FocusScope.of(context).requestFocus(new FocusNode());
+     Navigator.pop(context);
+     Navigator.pop(context);
+     pr.show();
+     await Firestore.instance.collection('products').document(widget.post.documentID)
+     .updateData({
+       'ProdName': nameController.text,
+       'ProdCost': int.parse(costController.text),
+       'Stock': int.parse(stockController.text),
+       'Description': descController.text
+     });
+     setState(() {
+       name=nameController.text;
+       desc=descController.text;
+       cost=costController.text;
+       stock=int.parse(stockController.text);
+     });
+     refreshRate();
+     pr.hide();
+     addSnackBar('Changes saved!');
+   }
+
+   void addSnackBar(String text) async{
      add2cart(widget.post, widget.email);
-      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Item added!", 
+      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text,
      style: TextStyle(color: Colors.white),), 
-     backgroundColor: Colors.black, 
+     backgroundColor: Colors.green, 
      duration: Duration(milliseconds: 1500),
      shape: RoundedRectangleBorder(
        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
@@ -245,7 +326,6 @@ class _prodDescriptionState extends State<prodDescription> {
       builder: (c) => StatefulBuilder(
           builder:(context, setState){
           return AlertDialog(
-            title: Text('Warning!'),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
             content: Text('Confirm product deletion?'),
             actions: <Widget>[
@@ -262,37 +342,6 @@ class _prodDescriptionState extends State<prodDescription> {
           }
       )
     );
-   }
-  
-
-  @override
-  void initState() { 
-    super.initState();
-    userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
-    data=widget.post;
-    counter=widget.counter;
-    stock=data.data['Stock'];
-    rate1=data.data['1 Star'];
-    rate2=data.data['2 Star'];
-    rate3=data.data['3 Star'];
-    rate4=data.data['4 Star'];
-    rate5=data.data['5 Star'];
-    views=data.data['Views'];
-    totalVotes=rate1+rate2+rate3+rate4+rate5;
-    totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
-    if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
-      addView();
-    _timer = new Timer(const Duration(milliseconds: 300), () {
-      setState(() {
-        oplevel=1;
-      });
-    });
-  }
-  
-    @override
-   void dispose(){
-     super.dispose();
-     _timer.cancel();
    }
   
    goBack(int val){
@@ -382,13 +431,135 @@ class _prodDescriptionState extends State<prodDescription> {
         }
       )
     );
-   }
+  }
+
+  Widget textField(FocusNode node, TextEditingController controller, IconData icon, String label, TextInputType type){
+     return Padding(padding: const EdgeInsets.only(top:25),
+                    child: Theme(
+                      data: ThemeData(primaryColor: Colors.black),
+                      child: TextField(
+                        maxLines: null,
+                        focusNode: node,
+                        keyboardType: type,
+                        controller: controller,
+                        autofocus: false,
+                        onChanged: (value){
+                          if(controller.text.isEmpty)
+                            editOK=false;
+                          else
+                            editOK=true;
+                          print(editOK);
+                          print(controller.text);
+                        },
+                        decoration: InputDecoration(
+                          errorText: controller.text==null ? "Can't be kept blank" : null,
+                          labelText: label,
+                          prefixIcon: Icon(icon, color: Colors.black,),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                      )
+                    )
+    );
+  }
+
+  checkForChange(int val){
+    if(nameController.text!=data.data['ProdName'] || costController.text!=data.data['ProdCost'].toString() || stockController.text!=data.data['Stock'].toString() || descController.text!=data.data['Description']){
+      if(val==0)
+        return showDialog(
+        context: context,
+        builder: (c) => StatefulBuilder(
+            builder:(context, setState){
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              content: Text('Discard all changes?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(c,false),
+                ),
+                FlatButton(
+                  child: Text('Confirm'),
+                  onPressed: (){editOK=true; Navigator.pop(c, false); Navigator.pop(context);},
+                )
+              ],
+            );
+            }
+        )
+      );
+      else
+      return showDialog(
+        context: context,
+        builder: (c) => StatefulBuilder(
+            builder:(context, setState){
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              content: Text('Confirm changes'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(c,false),
+                ),
+                FlatButton(
+                  child: Text('Confirm'),
+                  onPressed: () => changeData()
+                )
+              ],
+            );
+            }
+        )
+      );
+    }
+    else
+      Navigator.pop(context);
+  }
+
+  editData(){
+    nameController = TextEditingController(text: data.data['ProdName']);
+    stockController = TextEditingController(text: stock.toString());
+    costController = TextEditingController(text: data.data['ProdCost'].toString());
+    descController = TextEditingController(text: data.data['Description'].toString());
+     return showDialog(
+       context: context,
+       builder: (c) => StatefulBuilder(
+          builder:(context, setState){
+          return AlertDialog(
+            title: Text('Edit details'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            content: Container(
+              height: 400,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    textField(node1, nameController, Icons.loyalty, 'Product Name', TextInputType.text),
+                    textField(node2, costController, Icons.local_offer, 'Cost', TextInputType.number),
+                    textField(node3, stockController, Icons.plus_one, 'Stock', TextInputType.number),
+                    textField(node4, descController, Icons.short_text, 'Description', TextInputType.multiline)
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'),
+                onPressed: () => checkForChange(0),
+              ),
+              FlatButton(
+                child: Text('Confirm'),
+                onPressed: () => editOK? checkForChange(1) : null,
+              )
+            ],
+          );
+          }
+      )
+    );
+  }
    
   @override
   Widget build(BuildContext context) {
     pr = new ProgressDialog(context,type: ProgressDialogType.Normal, isDismissible: false);
     pr.style(
-          message: 'Deleting product...',
+          message: 'Please Wait...',
           borderRadius: 10.0,
           backgroundColor: Colors.white,
           progressWidget: CircularProgressIndicator(),
@@ -413,12 +584,15 @@ class _prodDescriptionState extends State<prodDescription> {
               elevation: 0,
               actions: <Widget>[
                 widget.userpost.data['Admin']==1? Container():
-                counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID, counter: widget.counter,))))
-
+                counter>0 ? _shoppingCartBadge() : IconButton(icon: Icon(Icons.shopping_cart), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.userpost, email: widget.post.documentID, counter: widget.counter,)))),
+                widget.userpost.data['Admin']==1? IconButton(
+                  onPressed: () => editData(),
+                  icon: Icon(Icons.edit, color: Colors.white,),
+                ) : Container()
               ],
               backgroundColor: Colors.black,
               leading: IconButton(icon: Icon(Icons.arrow_back,), highlightColor: Colors.white,onPressed: () => goBack(0)),
-              title: Text(widget.post.data['ProdName'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
+              title: Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
             ),
             body: SingleChildScrollView(
                           child: Center(
@@ -466,11 +640,11 @@ class _prodDescriptionState extends State<prodDescription> {
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: <Widget>[
                         Padding(padding: const EdgeInsets.only(top:15, left:10, right:10),
-                          child: Text(widget.post.data['Description'], style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 18))),
+                          child: Text(desc, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 18))),
                         Padding(padding: const EdgeInsets.only(top:15, left:10),
                           child: Stack(
                             children: <Widget>[
-                              Text('QR. ${widget.post.data['ProdCost'].toString()}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 34)),
+                              Text('QR. $cost', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 34)),
                               Padding(padding: const EdgeInsets.only(left: 130.0, top:5),
                                 child: Column(
                                   children: <Widget>[
@@ -491,6 +665,15 @@ class _prodDescriptionState extends State<prodDescription> {
                         Padding(padding: const EdgeInsets.only(left:15),
                           child: Text(stock>0 ? 'In stock' : 'Out of stock!', style: TextStyle(color: stock>0 ? Colors.green : Colors.red, fontWeight: FontWeight.bold, fontSize: 18)),
                         ),
+                        widget.userpost.data['Admin']==1? 
+                        Padding(padding: const EdgeInsets.only(left:15, top:10),
+                          child: Row(
+                            children: <Widget>[
+                              Text('Stock : $stock', style: TextStyle(color: Colors.white, fontSize: 19)),
+                            ],
+                          )
+                        ) : 
+                        Container(),
                         Padding(padding: const EdgeInsets.only(top:30, left:10, right:10),
                           child: Divider(height: 0.2, color: Colors.grey,)),
                         Padding(padding: const EdgeInsets.only(top:35, left:10),
@@ -542,7 +725,7 @@ class _prodDescriptionState extends State<prodDescription> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                          onTap: () => widget.userpost.data['Admin']==1? warning() : stock>0 ? addSnackBar(): emptySnackBar(),
+                          onTap: () => widget.userpost.data['Admin']==1? warning() : stock>0 ? addSnackBar('Item added!'): emptySnackBar(),
                           child: Card(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                               color: widget.userpost.data['Admin']==1? Colors.red : stock>0 ? Colors.green : Colors.orange,
