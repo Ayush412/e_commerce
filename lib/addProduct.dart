@@ -20,8 +20,6 @@ class _addProductState extends State<addProduct> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController prodNameController = TextEditingController();
   TextEditingController prodCostController = TextEditingController();
-  TextEditingController prodCategoryController = TextEditingController();
-  TextEditingController prodSubCategoryController = TextEditingController();
   TextEditingController prodStockController = TextEditingController();
   TextEditingController prodDescriptionController = TextEditingController();
   TextEditingController imageLabelController = TextEditingController();
@@ -30,10 +28,12 @@ class _addProductState extends State<addProduct> {
   FocusNode node3 = FocusNode();
   FocusNode node4 = FocusNode();
   FocusNode node5 = FocusNode();
-  FocusNode node6 = FocusNode();
-  FocusNode node7 = FocusNode();
   String url;
   String desc='';
+  String defaultCategory='Select Category';
+  String defaultSubCategory='Select Subcategory';
+  String _category;
+  String _subCategory;
   bool visible=false;
   bool added=false;
   File imageFile;
@@ -41,6 +41,16 @@ class _addProductState extends State<addProduct> {
   List<String> myList = List<String>();
   ProgressDialog pr;
   Timer _timer;
+  List<String> categories=['Fashion', 'Electronics'];
+  List<String> fashion=['Caps', 'Bottoms', 'Eye Wear', 'T-Shirts', 'Watches'];
+  List<String> electronics=['Laptops', 'Mobile Phones', 'Games'];
+
+  @override
+  void initState() { 
+    super.initState();
+    _category=defaultCategory;
+    _subCategory=defaultSubCategory;
+  }
 
   goBack(int val){
     int change;
@@ -67,7 +77,7 @@ class _addProductState extends State<addProduct> {
   }
 
   checkDetails(){
-    if (prodDescriptionController.text!='' && prodCategoryController.text!='' && prodSubCategoryController.text!='' && prodCostController.text!='' && prodStockController.text!='' && prodDescriptionController.text!='' && imageFile!=null && myList.isNotEmpty)
+    if (prodNameController.text!='' && prodDescriptionController.text!='' && prodCostController.text!='' && prodStockController.text!='' && prodDescriptionController.text!='' && imageFile!=null && myList.isNotEmpty)
     dialog("Add this product to database?", 1);
     else
     snack('All fields are required.', Colors.black, Colors.orange);
@@ -87,8 +97,8 @@ class _addProductState extends State<addProduct> {
       '5 Star': 0,
       'Rate': 0,
       'ProdName': prodNameController.text,
-      'Category': prodCategoryController.text,
-      'SubCategory': prodSubCategoryController.text,
+      'Category': _category,
+      'SubCategory': _subCategory,
       'Stock': int.parse(prodStockController.text),
       'ProdCost': int.parse(prodCostController.text),
       'Description': prodDescriptionController.text,
@@ -110,6 +120,84 @@ class _addProductState extends State<addProduct> {
       borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
   }
 
+  Widget dropDownMenuCat()
+  {
+    return Padding(
+      padding: const EdgeInsets.only(top: 35),
+      child: Container(
+        width:280,
+        height: 60,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.grey)),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            hint:  Row(children:[
+              Padding(
+                padding: const EdgeInsets.only(left:8),
+                child: Icon(Icons.category),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left:8),
+                child: Text(_category, style: TextStyle(color: _category==defaultCategory? Colors.grey : Colors.black),),
+              )
+            ]),
+            items: categories.map((String val){
+                return DropdownMenuItem<String>(
+                  value: val,
+                  child: new Text(val),
+                );
+              }).toList(),
+              onChanged:(String val){
+                if(_category!=val){
+                _category = val;
+                _subCategory=defaultSubCategory;
+                }
+                setState(() {});
+                })
+        )
+      )
+    );
+  }
+
+  Widget dropDownMenuSub()
+  {
+    List<String> display = List<String>();
+    if(_category=='Fashion')
+      display=fashion;
+    if(_category=='Electronics')
+      display=electronics;
+    return Padding(
+      padding: const EdgeInsets.only(top: 35),
+      child: Container(
+        width:280,
+        height: 60,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.grey)),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            hint:  Row(children:[
+              Padding(
+                padding: const EdgeInsets.only(left:8),
+                child: Icon(Icons.sort),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left:8),
+                child: Text(_subCategory, style: TextStyle(color: _subCategory==defaultSubCategory? Colors.grey : Colors.black),),
+              )
+            ]),
+            items: display.map((String val){
+                return DropdownMenuItem<String>(
+                  value: val,
+                  child: new Text(val),
+                );
+              }).toList(),
+              onChanged:(String val){
+                _subCategory = val;
+                setState(() {});
+                })
+        )
+      )
+    );
+  }
+
   Widget textField(String text, FocusNode node, TextEditingController controller, TextInputType type, IconData icon)
   {
     return Padding(
@@ -125,7 +213,7 @@ class _addProductState extends State<addProduct> {
               maxLines: null,
               focusNode: node,
               onSubmitted: (text){setState((){
-                  node.unfocus();
+                  FocusScope.of(context).requestFocus(new FocusNode());
                 });
               },
               keyboardType: type,
@@ -166,18 +254,18 @@ class _addProductState extends State<addProduct> {
       FocusScope.of(context).requestFocus(new FocusNode());
       prodNameController.clear();
       prodCostController.clear();
-      prodCategoryController.clear();
-      prodSubCategoryController.clear();
       prodStockController.clear();
       prodDescriptionController.clear();
       imageFile=null;
       myList.clear();
       desc='';
+      _category=defaultCategory;
+      _subCategory=defaultSubCategory;
     });
   }
 
   checkBeforeExit(){
-    if (prodDescriptionController.text!='' || prodCategoryController.text!='' || prodSubCategoryController.text!='' || prodCostController.text!='' || prodStockController.text!='' || prodDescriptionController.text!='' || imageFile!=null || myList.isNotEmpty)
+    if (_category!=defaultCategory || _subCategory!=defaultSubCategory || prodNameController.text!='' || prodDescriptionController.text!='' || prodCostController.text!='' || prodStockController.text!='' || prodDescriptionController.text!='' || imageFile!=null || myList.isNotEmpty)
     dialog("Exit without adding product?", 0);
     else
     goBack(0);
@@ -228,10 +316,10 @@ class _addProductState extends State<addProduct> {
                     Column(
                       children: <Widget>[
                         textField('Product Name', node1, prodNameController, TextInputType.text, Icons.loyalty),
-                        textField('Category', node2, prodCategoryController, TextInputType.text, Icons.category),
-                        textField('Subcategory', node3, prodSubCategoryController, TextInputType.text, Icons.sort),
-                        textField('Cost', node4, prodCostController, TextInputType.number, Icons.local_offer),
-                        textField('Stock', node5, prodStockController, TextInputType.number, Icons.exposure_plus_1),
+                        dropDownMenuCat(),
+                        _category==defaultCategory? Container() : dropDownMenuSub(),
+                        textField('Cost', node2, prodCostController, TextInputType.number, Icons.local_offer),
+                        textField('Stock', node3, prodStockController, TextInputType.number, Icons.exposure_plus_1),
                         Container(
                           margin: EdgeInsets.all(40.0),
                           padding: EdgeInsets.only(top: 10.0),
@@ -240,7 +328,7 @@ class _addProductState extends State<addProduct> {
                             child: Stack(
                               children: <Widget>[
                                 TextField(
-                                  focusNode: node6,
+                                  focusNode: node4,
                                   controller: prodDescriptionController,
                                   maxLines: null,
                                   keyboardType: TextInputType.multiline,
@@ -259,7 +347,7 @@ class _addProductState extends State<addProduct> {
                                   right: 5, top: 3,
                                   child: IconButton(
                                     onPressed: () => setState((){
-                                      node6.unfocus();
+                                      node4.unfocus();
                                     }),
                                     icon: Icon(Icons.check, size:28),
                                   ),
@@ -322,11 +410,11 @@ class _addProductState extends State<addProduct> {
                                     data: ThemeData(primaryColor: Colors.black),
                                     child: TextField (autocorrect: true, 
                                       controller: imageLabelController,
-                                      focusNode: node7,
+                                      focusNode: node5,
                                       keyboardType: TextInputType.text,
                                       onSubmitted: (text){
                                         imageLabelController.clear();
-                                        node7.unfocus();
+                                        node5.unfocus();
                                       },
                                       decoration: new InputDecoration(
                                         labelText: 'Image Labels',
