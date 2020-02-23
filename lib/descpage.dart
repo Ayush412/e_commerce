@@ -14,7 +14,7 @@ import 'add2cart.dart';
 import 'mycart.dart';
 import 'package:progress_dialog/progress_dialog.dart'; 
 
-class prodDescription extends StatefulWidget {
+class prodDescription extends StatefulWidget{
 int counter;
 final String email;
 final DocumentSnapshot post;
@@ -84,10 +84,10 @@ class _prodDescriptionState extends State<prodDescription> {
     name=data.data['ProdName'];
     cost=data.data['ProdCost'].toString();
     desc=data.data['Description'];
-    nameController = TextEditingController(text: name);
-    stockController = TextEditingController(text: stock.toString());
-    costController = TextEditingController(text: cost);
-    descController = TextEditingController(text: desc);
+    nameController.text=name;
+    stockController.text=stock.toString();
+    costController.text=cost;
+    descController.text=desc;
     print(url);
     if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
       addView();
@@ -215,10 +215,10 @@ class _prodDescriptionState extends State<prodDescription> {
         cost=data.data['ProdCost'].toString();
         desc=data.data['Description'];
         url=data.data['imgurl'].toString();
-        nameController = TextEditingController(text: name);
-        stockController = TextEditingController(text: stock.toString());
-        costController = TextEditingController(text: cost);
-        descController = TextEditingController(text: desc);
+        nameController.text=name;
+        stockController.text=stock.toString();
+        costController.text=cost;
+        descController.text=desc;
         editOK=true;
         imageFile=null;
        });
@@ -470,49 +470,53 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   validate(TextEditingController controller)
-  {
+  { 
     if(controller.text.isEmpty)
-      return "Can't be kept blank";
+      return "Can't be blank";
     else
       return null;
   }
-
-  Widget textField(FocusNode node, TextEditingController controller, IconData icon, String label, TextInputType type){
-     return Padding(padding: const EdgeInsets.only(top:25),
-                    child: Theme(
-                      data: ThemeData(primaryColor: Colors.black),
-                      child: TextField(
-                        maxLines: null,
-                        focusNode: node,
-                        keyboardType: type,
-                        controller: controller,
-                        autofocus: false,
-                        onChanged: (value){
-                          setState(() {
-                            if(controller.text.isEmpty)
-                              editOK=false;
-                            else
-                              editOK=true;
-                          });  
-                        },
-                        decoration: InputDecoration(
-                          errorText: validate(controller),
-                          labelText: label,
-                          prefixIcon: Icon(icon, color: Colors.black,),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+  
+  Widget textField(FocusNode node, TextEditingController controller, IconData icon, String label, TextInputType type, con){
+     return StatefulBuilder(
+            builder: (con, setState){
+            return Padding(padding: const EdgeInsets.only(top:25),
+                      child: Theme(
+                        data: ThemeData(primaryColor: Colors.black),
+                        child: TextField(
+                          maxLines: null,
+                          focusNode: node,
+                          keyboardType: type,
+                          controller: controller,
+                          autofocus: false,
+                          onChanged: (value){
+                           setState(() {
+                              if(controller.text.isEmpty)
+                                editOK=false;
+                              else
+                                editOK=true;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            errorText: validate(controller),
+                            labelText: label,
+                            prefixIcon: Icon(icon, color: Colors.black,),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                          ),
                         ),
-                      ),
+                        )
                       )
-                    )
-    );
+            );
+            }
+     );
   }
 
   checkForChange(int val){
     if(nameController.text!=data.data['ProdName'] || costController.text!=data.data['ProdCost'].toString() || stockController.text!=data.data['Stock'].toString() || descController.text!=data.data['Description'] || imageFile!=null){
       if(val==0)
         return showDialog(
-        context: context,
-        builder: (c) => StatefulBuilder(
+          context: context,
+          builder: (c) => StatefulBuilder(
             builder:(context, setState){
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
@@ -581,114 +585,10 @@ class _prodDescriptionState extends State<prodDescription> {
                     color: Colors.white,
                     child: Column(
                       children: <Widget>[
-                        Padding(padding: const EdgeInsets.only(top:25),
-                          child: Theme(
-                            data: ThemeData(primaryColor: Colors.black),
-                            child: TextField(
-                              maxLines: null,
-                              focusNode: node1,
-                              keyboardType: TextInputType.text,
-                              controller: nameController,
-                              autofocus: false,
-                              onChanged: (value){
-                                setState(() {
-                                  if(nameController.text.isEmpty)
-                                    editOK=false;
-                                  else
-                                    editOK=true;
-                                });  
-                              },
-                              decoration: InputDecoration(
-                                errorText: nameController.text.isEmpty? "Can't be empty" : null,
-                                labelText: 'Name',
-                                prefixIcon: Icon(Icons.loyalty, color: Colors.black,),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
-                              ),
-                            ),
-                            )
-                          )
-                        ),
-                        Padding(padding: const EdgeInsets.only(top:25),
-                          child: Theme(
-                            data: ThemeData(primaryColor: Colors.black),
-                            child: TextField(
-                              maxLines: null,
-                              focusNode: node2,
-                              keyboardType: TextInputType.number,
-                              controller: costController,
-                              autofocus: false,
-                              onChanged: (value){
-                                setState(() {
-                                  if(costController.text.isEmpty)
-                                    editOK=false;
-                                  else
-                                    editOK=true;
-                                });  
-                              },
-                              decoration: InputDecoration(
-                                errorText: costController.text.isEmpty? "Can't be empty" : null,
-                                labelText: 'Cost',
-                                prefixIcon: Icon(Icons.local_offer, color: Colors.black,),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
-                              ),
-                            ),
-                            )
-                          )
-                        ),
-                        Padding(padding: const EdgeInsets.only(top:25),
-                          child: Theme(
-                            data: ThemeData(primaryColor: Colors.black),
-                            child: TextField(
-                              maxLines: null,
-                              focusNode: node3,
-                              keyboardType: TextInputType.number,
-                              controller: stockController,
-                              autofocus: false,
-                              onChanged: (value){
-                                setState(() {
-                                  if(stockController.text.isEmpty)
-                                    editOK=false;
-                                  else
-                                    editOK=true;
-                                });  
-                              },
-                              decoration: InputDecoration(
-                                errorText: stockController.text.isEmpty? "Can't be empty" : null,
-                                labelText: 'Stock',
-                                prefixIcon: Icon(Icons.plus_one, color: Colors.black,),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
-                              ),
-                            ),
-                            )
-                          )
-                        ),
-                        Padding(padding: const EdgeInsets.only(top:25),
-                          child: Theme(
-                            data: ThemeData(primaryColor: Colors.black),
-                            child: TextField(
-                              maxLines: null,
-                              focusNode: node4,
-                              keyboardType: TextInputType.multiline,
-                              controller: descController,
-                              autofocus: false,
-                              onChanged: (value){
-                                setState(() {
-                                  if(descController.text.isEmpty)
-                                    editOK=false;
-                                  else
-                                    editOK=true;
-                                });  
-                              },
-                              decoration: InputDecoration(
-                                errorText: descController.text.isEmpty? "Can't be empty" : null,
-                                labelText: 'Description',
-                                prefixIcon: Icon(Icons.short_text, color: Colors.black,),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
-                              ),
-                            ),
-                            )
-                          )
-                        ),
+                        textField(node1, nameController, Icons.loyalty, 'Name', TextInputType.text, context),
+                        textField(node2, costController, Icons.local_offer, 'Cost', TextInputType.number, context),
+                        textField(node3, stockController, Icons.plus_one, 'Stock', TextInputType.number, context),
+                        textField(node4, descController, Icons.short_text, 'Description', TextInputType.multiline, context),
                         Padding(padding: const EdgeInsets.only(top:25),
                           child: Column(
                             children: <Widget>[
@@ -703,7 +603,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                   )
                                 )
                               ),
-                              Padding(padding: const EdgeInsets.only(top:15),
+                              Padding(padding: const EdgeInsets.only(top:20),
                                 child: GestureDetector(
                                   onTap: () async {await getImage(); setState((){});},
                                   child: Container(
@@ -725,13 +625,12 @@ class _prodDescriptionState extends State<prodDescription> {
             actions: <Widget>[
               FlatButton(
                 child: Text('Cancel'),
-                onPressed: () => checkForChange(0),
+                  onPressed: () => checkForChange(0),
               ),
-              editOK? FlatButton(
+              FlatButton(
                 child: Text('Confirm'),
-                onPressed: () => checkForChange(1)
-              ) : Container()
-            ],
+                  onPressed: () => editOK? checkForChange(1) : null)
+            ]
           );
           }
       )
