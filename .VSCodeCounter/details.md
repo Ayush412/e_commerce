@@ -1,10 +1,10 @@
 # Details
 
-Date : 2020-02-17 12:37:40
+Date : 2020-02-20 16:21:48
 
 Directory /Users/fatboy/Documents/flutter projects/e_commerce/lib
 
-Total : 13 files,  3588 codes, 1 comments, 178 blanks, all 3767 lines
+Total : 14 files,  4419 codes, 1 comments, 206 blanks, all 4626 lines
 
 [summary](results.md)
 
@@ -13,16 +13,17 @@ Total : 13 files,  3588 codes, 1 comments, 178 blanks, all 3767 lines
 | :--- | :--- | ---: | ---: | ---: | ---: |
 | [lib/add2cart.dart](/lib/add2cart.dart) | Dart | 30 | 0 | 4 | 34 |
 | [lib/addNotification.dart](/lib/addNotification.dart) | Dart | 25 | 0 | 2 | 27 |
-| [lib/descpage.dart](/lib/descpage.dart) | Dart | 439 | 0 | 23 | 462 |
-| [lib/getuserdata.dart](/lib/getuserdata.dart) | Dart | 404 | 0 | 20 | 424 |
-| [lib/login.dart](/lib/login.dart) | Dart | 244 | 0 | 16 | 260 |
-| [lib/main.dart](/lib/main.dart) | Dart | 68 | 0 | 11 | 79 |
+| [lib/addProduct.dart](/lib/addProduct.dart) | Dart | 454 | 0 | 17 | 471 |
+| [lib/descpage.dart](/lib/descpage.dart) | Dart | 715 | 0 | 30 | 745 |
+| [lib/getuserdata.dart](/lib/getuserdata.dart) | Dart | 417 | 0 | 19 | 436 |
+| [lib/login.dart](/lib/login.dart) | Dart | 243 | 0 | 16 | 259 |
+| [lib/main.dart](/lib/main.dart) | Dart | 67 | 0 | 11 | 78 |
 | [lib/myNotifications.dart](/lib/myNotifications.dart) | Dart | 178 | 0 | 13 | 191 |
-| [lib/myaccount.dart](/lib/myaccount.dart) | Dart | 564 | 0 | 18 | 582 |
+| [lib/myaccount.dart](/lib/myaccount.dart) | Dart | 581 | 0 | 18 | 599 |
 | [lib/mycart.dart](/lib/mycart.dart) | Dart | 312 | 0 | 13 | 325 |
-| [lib/notifdesc.dart](/lib/notifdesc.dart) | Dart | 85 | 0 | 8 | 93 |
-| [lib/products.dart](/lib/products.dart) | Dart | 733 | 1 | 30 | 764 |
+| [lib/notifdesc.dart](/lib/notifdesc.dart) | Dart | 99 | 0 | 8 | 107 |
+| [lib/products.dart](/lib/products.dart) | Dart | 774 | 1 | 34 | 809 |
 | [lib/register.dart](/lib/register.dart) | Dart | 283 | 0 | 11 | 294 |
-| [lib/scanToSearch.dart](/lib/scanToSearch.dart) | Dart | 223 | 0 | 9 | 232 |
+| [lib/scanToSearch.dart](/lib/scanToSearch.dart) | Dart | 241 | 0 | 10 | 251 |
 
 [summary](results.md)

@@ -1,19 +1,19 @@
-Date : 2020-02-17 12:37:40
+Date : 2020-02-20 16:21:48
 Directory : /Users/fatboy/Documents/flutter projects/e_commerce/lib
-Total : 13 files,  3588 codes, 1 comments, 178 blanks, all 3767 lines
+Total : 14 files,  4419 codes, 1 comments, 206 blanks, all 4626 lines
 
 Languages
 +----------+------------+------------+------------+------------+------------+
 | language | files      | code       | comment    | blank      | total      |
 +----------+------------+------------+------------+------------+------------+
-| Dart     |         13 |      3,588 |          1 |        178 |      3,767 |
+| Dart     |         14 |      4,419 |          1 |        206 |      4,626 |
 +----------+------------+------------+------------+------------+------------+
 
 Directories
 +------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
 | path                                                                         | files      | code       | comment    | blank      | total      |
 +------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
-| .                                                                            |         13 |      3,588 |          1 |        178 |      3,767 |
+| .                                                                            |         14 |      4,419 |          1 |        206 |      4,626 |
 +------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
 
 Files
@@ -22,16 +22,17 @@ Files
 +------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
 | /Users/fatboy/Documents/flutter projects/e_commerce/lib/add2cart.dart        | Dart     |         30 |          0 |          4 |         34 |
 | /Users/fatboy/Documents/flutter projects/e_commerce/lib/addNotification.dart | Dart     |         25 |          0 |          2 |         27 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/descpage.dart        | Dart     |        439 |          0 |         23 |        462 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/getuserdata.dart     | Dart     |        404 |          0 |         20 |        424 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/login.dart           | Dart     |        244 |          0 |         16 |        260 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/main.dart            | Dart     |         68 |          0 |         11 |         79 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/addProduct.dart      | Dart     |        454 |          0 |         17 |        471 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/descpage.dart        | Dart     |        715 |          0 |         30 |        745 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/getuserdata.dart     | Dart     |        417 |          0 |         19 |        436 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/login.dart           | Dart     |        243 |          0 |         16 |        259 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/main.dart            | Dart     |         67 |          0 |         11 |         78 |
 | /Users/fatboy/Documents/flutter projects/e_commerce/lib/myNotifications.dart | Dart     |        178 |          0 |         13 |        191 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/myaccount.dart       | Dart     |        564 |          0 |         18 |        582 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/myaccount.dart       | Dart     |        581 |          0 |         18 |        599 |
 | /Users/fatboy/Documents/flutter projects/e_commerce/lib/mycart.dart          | Dart     |        312 |          0 |         13 |        325 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/notifdesc.dart       | Dart     |         85 |          0 |          8 |         93 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/products.dart        | Dart     |        733 |          1 |         30 |        764 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/notifdesc.dart       | Dart     |         99 |          0 |          8 |        107 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/products.dart        | Dart     |        774 |          1 |         34 |        809 |
 | /Users/fatboy/Documents/flutter projects/e_commerce/lib/register.dart        | Dart     |        283 |          0 |         11 |        294 |
-| /Users/fatboy/Documents/flutter projects/e_commerce/lib/scanToSearch.dart    | Dart     |        223 |          0 |          9 |        232 |
-| Total                                                                        |          |      3,588 |          1 |        178 |      3,767 |
+| /Users/fatboy/Documents/flutter projects/e_commerce/lib/scanToSearch.dart    | Dart     |        241 |          0 |         10 |        251 |
+| Total                                                                        |          |      4,419 |          1 |        206 |      4,626 |
 +------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

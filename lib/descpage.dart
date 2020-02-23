@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce/products.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'add2cart.dart';
 import 'mycart.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:progress_dialog/progress_dialog.dart'; 
 
 class prodDescription extends StatefulWidget {
 int counter;
@@ -53,9 +58,12 @@ class _prodDescriptionState extends State<prodDescription> {
   FocusNode node4 = FocusNode();
   Timer _timer;
   bool editOK=true;
+  bool changed=false;
   String name;
   String cost;
   String desc;
+  String url;
+  File imageFile;
 
   @override
   void initState() { 
@@ -70,6 +78,7 @@ class _prodDescriptionState extends State<prodDescription> {
     rate4=data.data['4 Star'];
     rate5=data.data['5 Star'];
     views=data.data['Views'];
+    url=data.data['imgurl'];
     totalVotes=rate1+rate2+rate3+rate4+rate5;
     totalVotes==0? totalRate=0 : totalRate=(1*rate1 + 2*rate2 + 3*rate3 + 4*rate4 + 5*rate5)/(totalVotes);
     name=data.data['ProdName'];
@@ -79,7 +88,7 @@ class _prodDescriptionState extends State<prodDescription> {
     stockController = TextEditingController(text: stock.toString());
     costController = TextEditingController(text: cost);
     descController = TextEditingController(text: desc);
-
+    print(url);
     if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
       addView();
     _timer = new Timer(const Duration(milliseconds: 300), () {
@@ -94,6 +103,21 @@ class _prodDescriptionState extends State<prodDescription> {
      super.dispose();
      _timer.cancel();
    }
+
+   Future getImage() async{
+    File newFile;
+    newFile =  await ImagePicker.pickImage(source: ImageSource.gallery);
+    if(newFile!=null)
+      imageFile=newFile;
+    setState((){});
+  }
+
+  Future putImage() async{
+    storageRef = FirebaseStorage.instance.ref().child('product images/$name ${Random().nextInt(10000)}-${Random().nextInt(10000)}-$cost.jpg');
+    StorageUploadTask upload = storageRef.putFile(imageFile);
+    StorageTaskSnapshot downloadUrl = await upload.onComplete;
+    url = await downloadUrl.ref.getDownloadURL();
+  }
   
   Widget _shoppingCartBadge() {
     return Badge(
@@ -110,7 +134,7 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   Future deleteImage() async{
-    storageRef = await FirebaseStorage.instance.getReferenceFromUrl(widget.post.data['imgurl']);
+    storageRef = await FirebaseStorage.instance.getReferenceFromUrl(url);
     await storageRef.delete();
   }
 
@@ -190,11 +214,13 @@ class _prodDescriptionState extends State<prodDescription> {
         name=data.data['ProdName'];
         cost=data.data['ProdCost'].toString();
         desc=data.data['Description'];
+        url=data.data['imgurl'].toString();
         nameController = TextEditingController(text: name);
         stockController = TextEditingController(text: stock.toString());
         costController = TextEditingController(text: cost);
         descController = TextEditingController(text: desc);
         editOK=true;
+        imageFile=null;
        });
      });
    }
@@ -279,13 +305,20 @@ class _prodDescriptionState extends State<prodDescription> {
      FocusScope.of(context).requestFocus(new FocusNode());
      Navigator.pop(context);
      Navigator.pop(context);
+     changed=true;
      pr.show();
+     if(imageFile!=null)
+     {
+       await deleteImage();
+       await putImage();
+     }
      await Firestore.instance.collection('products').document(widget.post.documentID)
      .updateData({
        'ProdName': nameController.text,
        'ProdCost': int.parse(costController.text),
        'Stock': int.parse(stockController.text),
-       'Description': descController.text
+       'Description': descController.text,
+       'imgurl': url
      });
      setState(() {
        name=nameController.text;
@@ -348,7 +381,10 @@ class _prodDescriptionState extends State<prodDescription> {
      setState(() {
        oplevel=0;
      });
-     Navigator.pop(context, val);
+     if(changed)
+      Navigator.push(context, MaterialPageRoute(builder: (context) => listPage(post: widget.userpost)));
+    else
+      Navigator.pop(context, val);
    }
 
    Widget stars(double size, double rate, int count, Color color){
@@ -433,6 +469,14 @@ class _prodDescriptionState extends State<prodDescription> {
     );
   }
 
+  validate(TextEditingController controller)
+  {
+    if(controller.text.isEmpty)
+      return "Can't be kept blank";
+    else
+      return null;
+  }
+
   Widget textField(FocusNode node, TextEditingController controller, IconData icon, String label, TextInputType type){
      return Padding(padding: const EdgeInsets.only(top:25),
                     child: Theme(
@@ -444,15 +488,15 @@ class _prodDescriptionState extends State<prodDescription> {
                         controller: controller,
                         autofocus: false,
                         onChanged: (value){
-                          if(controller.text.isEmpty)
-                            editOK=false;
-                          else
-                            editOK=true;
-                          print(editOK);
-                          print(controller.text);
+                          setState(() {
+                            if(controller.text.isEmpty)
+                              editOK=false;
+                            else
+                              editOK=true;
+                          });  
                         },
                         decoration: InputDecoration(
-                          errorText: controller.text==null ? "Can't be kept blank" : null,
+                          errorText: validate(controller),
                           labelText: label,
                           prefixIcon: Icon(icon, color: Colors.black,),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
@@ -464,7 +508,7 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   checkForChange(int val){
-    if(nameController.text!=data.data['ProdName'] || costController.text!=data.data['ProdCost'].toString() || stockController.text!=data.data['Stock'].toString() || descController.text!=data.data['Description']){
+    if(nameController.text!=data.data['ProdName'] || costController.text!=data.data['ProdCost'].toString() || stockController.text!=data.data['Stock'].toString() || descController.text!=data.data['Description'] || imageFile!=null){
       if(val==0)
         return showDialog(
         context: context,
@@ -519,23 +563,162 @@ class _prodDescriptionState extends State<prodDescription> {
     stockController = TextEditingController(text: stock.toString());
     costController = TextEditingController(text: data.data['ProdCost'].toString());
     descController = TextEditingController(text: data.data['Description'].toString());
-     return showDialog(
+    imageFile=null;
+    url=data.data['imgurl'];
+    return showDialog(
        context: context,
+       barrierDismissible: false,
        builder: (c) => StatefulBuilder(
           builder:(context, setState){
           return AlertDialog(
             title: Text('Edit details'),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
             content: Container(
-              height: 400,
+              height: 450,
               child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    textField(node1, nameController, Icons.loyalty, 'Product Name', TextInputType.text),
-                    textField(node2, costController, Icons.local_offer, 'Cost', TextInputType.number),
-                    textField(node3, stockController, Icons.plus_one, 'Stock', TextInputType.number),
-                    textField(node4, descController, Icons.short_text, 'Description', TextInputType.multiline)
-                  ],
+                child: Material(
+                  child: Container(
+                    color: Colors.white,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(padding: const EdgeInsets.only(top:25),
+                          child: Theme(
+                            data: ThemeData(primaryColor: Colors.black),
+                            child: TextField(
+                              maxLines: null,
+                              focusNode: node1,
+                              keyboardType: TextInputType.text,
+                              controller: nameController,
+                              autofocus: false,
+                              onChanged: (value){
+                                setState(() {
+                                  if(nameController.text.isEmpty)
+                                    editOK=false;
+                                  else
+                                    editOK=true;
+                                });  
+                              },
+                              decoration: InputDecoration(
+                                errorText: nameController.text.isEmpty? "Can't be empty" : null,
+                                labelText: 'Name',
+                                prefixIcon: Icon(Icons.loyalty, color: Colors.black,),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                              ),
+                            ),
+                            )
+                          )
+                        ),
+                        Padding(padding: const EdgeInsets.only(top:25),
+                          child: Theme(
+                            data: ThemeData(primaryColor: Colors.black),
+                            child: TextField(
+                              maxLines: null,
+                              focusNode: node2,
+                              keyboardType: TextInputType.number,
+                              controller: costController,
+                              autofocus: false,
+                              onChanged: (value){
+                                setState(() {
+                                  if(costController.text.isEmpty)
+                                    editOK=false;
+                                  else
+                                    editOK=true;
+                                });  
+                              },
+                              decoration: InputDecoration(
+                                errorText: costController.text.isEmpty? "Can't be empty" : null,
+                                labelText: 'Cost',
+                                prefixIcon: Icon(Icons.local_offer, color: Colors.black,),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                              ),
+                            ),
+                            )
+                          )
+                        ),
+                        Padding(padding: const EdgeInsets.only(top:25),
+                          child: Theme(
+                            data: ThemeData(primaryColor: Colors.black),
+                            child: TextField(
+                              maxLines: null,
+                              focusNode: node3,
+                              keyboardType: TextInputType.number,
+                              controller: stockController,
+                              autofocus: false,
+                              onChanged: (value){
+                                setState(() {
+                                  if(stockController.text.isEmpty)
+                                    editOK=false;
+                                  else
+                                    editOK=true;
+                                });  
+                              },
+                              decoration: InputDecoration(
+                                errorText: stockController.text.isEmpty? "Can't be empty" : null,
+                                labelText: 'Stock',
+                                prefixIcon: Icon(Icons.plus_one, color: Colors.black,),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                              ),
+                            ),
+                            )
+                          )
+                        ),
+                        Padding(padding: const EdgeInsets.only(top:25),
+                          child: Theme(
+                            data: ThemeData(primaryColor: Colors.black),
+                            child: TextField(
+                              maxLines: null,
+                              focusNode: node4,
+                              keyboardType: TextInputType.multiline,
+                              controller: descController,
+                              autofocus: false,
+                              onChanged: (value){
+                                setState(() {
+                                  if(descController.text.isEmpty)
+                                    editOK=false;
+                                  else
+                                    editOK=true;
+                                });  
+                              },
+                              decoration: InputDecoration(
+                                errorText: descController.text.isEmpty? "Can't be empty" : null,
+                                labelText: 'Description',
+                                prefixIcon: Icon(Icons.short_text, color: Colors.black,),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0),
+                              ),
+                            ),
+                            )
+                          )
+                        ),
+                        Padding(padding: const EdgeInsets.only(top:25),
+                          child: Column(
+                            children: <Widget>[
+                              imageFile==null? 
+                              Image.network(url, height: 200, width:200) : 
+                              Container(
+                                height: 200, width:200,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: FileImage(imageFile),
+                                    fit: BoxFit.contain 
+                                  )
+                                )
+                              ),
+                              Padding(padding: const EdgeInsets.only(top:15),
+                                child: GestureDetector(
+                                  onTap: () async {await getImage(); setState((){});},
+                                  child: Container(
+                                    height: 35, width:110,
+                                    decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadiusDirectional.circular(15)),
+                                    child: Center(child: Text('Change Image', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900),))
+                                  ),
+                                )
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -544,10 +727,10 @@ class _prodDescriptionState extends State<prodDescription> {
                 child: Text('Cancel'),
                 onPressed: () => checkForChange(0),
               ),
-              FlatButton(
+              editOK? FlatButton(
                 child: Text('Confirm'),
-                onPressed: () => editOK? checkForChange(1) : null,
-              )
+                onPressed: () => checkForChange(1)
+              ) : Container()
             ],
           );
           }
@@ -601,7 +784,7 @@ class _prodDescriptionState extends State<prodDescription> {
                     padding: const EdgeInsets.only(top:25, bottom:10),
                     child: Hero(
                       tag: widget.tag.contains('card') ? 'card${widget.post.documentID}' : '${widget.post.documentID}',
-                      child: Image.network(widget.post.data['imgurl'], height:300, width:300)
+                      child: Image.network(url, height:300, width:300)
                     ),
                   ),
                   AnimatedOpacity(
