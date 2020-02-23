@@ -1,10 +1,10 @@
 # Details
 
-Date : 2020-02-20 16:21:48
+Date : 2020-02-23 17:42:31
 
 Directory /Users/fatboy/Documents/flutter projects/e_commerce/lib
 
-Total : 14 files,  4419 codes, 1 comments, 206 blanks, all 4626 lines
+Total : 14 files,  4499 codes, 1 comments, 208 blanks, all 4708 lines
 
 [summary](results.md)
 
@@ -14,7 +14,7 @@ Total : 14 files,  4419 codes, 1 comments, 206 blanks, all 4626 lines
 | [lib/add2cart.dart](/lib/add2cart.dart) | Dart | 30 | 0 | 4 | 34 |
 | [lib/addNotification.dart](/lib/addNotification.dart) | Dart | 25 | 0 | 2 | 27 |
 | [lib/addProduct.dart](/lib/addProduct.dart) | Dart | 454 | 0 | 17 | 471 |
-| [lib/descpage.dart](/lib/descpage.dart) | Dart | 715 | 0 | 30 | 745 |
+| [lib/descpage.dart](/lib/descpage.dart) | Dart | 795 | 0 | 32 | 827 |
 | [lib/getuserdata.dart](/lib/getuserdata.dart) | Dart | 417 | 0 | 19 | 436 |
 | [lib/login.dart](/lib/login.dart) | Dart | 243 | 0 | 16 | 259 |
 | [lib/main.dart](/lib/main.dart) | Dart | 67 | 0 | 11 | 78 |
