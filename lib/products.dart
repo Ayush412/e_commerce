@@ -24,7 +24,7 @@ class listPage extends StatefulWidget {
 
 class _listPageState extends State<listPage> {
   
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final FirebaseMessaging _fcm = FirebaseMessaging();
   String catVal;
   String subcatVal;

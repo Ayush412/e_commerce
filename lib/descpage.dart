@@ -12,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'add2cart.dart';
 import 'mycart.dart';
-import 'package:progress_dialog/progress_dialog.dart'; 
+import 'package:progress_dialog/progress_dialog.dart';
+import 'package:date_format/date_format.dart';
+import 'package:charts_flutter/flutter.dart' as charts; 
 
 class prodDescription extends StatefulWidget{
 int counter;
@@ -29,7 +31,7 @@ prodDescription({this.post, this.email, this.counter, this.userpost, this.tag, t
 
 class _prodDescriptionState extends State<prodDescription> {
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int onpage=0;
   int counter;
   int stock;
@@ -63,11 +65,28 @@ class _prodDescriptionState extends State<prodDescription> {
   String cost;
   String desc;
   String url;
+  String key;
+  String date;
+  var value;
+  var keys;
+  List<charts.Series<ProductData, String >> series;
+  List<double> visitCount=List<double>();
+  List<double> addCount=List<double>();
+  List<String> test = List<String>();
+  List<String> labels = List<String>();
+  List<ProductData> productData = List<ProductData>();
   File imageFile;
+  Map<dynamic, dynamic> myMap = Map<dynamic, dynamic>();
 
   @override
   void initState() { 
+    date = formatDate(DateTime.now(), [yyyy,'-',mm,'-',dd]);
     super.initState();
+    visitCount=[];
+    addCount=[];
+    keys=[];
+    productData=[];
+    getViewsAndAdds();
     userRate=widget.map['${widget.post.documentID}']!=null? widget.map['${widget.post.documentID}'] : 0;
     data=widget.post;
     counter=widget.counter;
@@ -88,7 +107,6 @@ class _prodDescriptionState extends State<prodDescription> {
     stockController.text=stock.toString();
     costController.text=cost;
     descController.text=desc;
-    print(url);
     if(!widget.list.contains(widget.post.documentID) && widget.userpost.data['Admin']!=1)
       addView();
     _timer = new Timer(const Duration(milliseconds: 300), () {
@@ -103,6 +121,65 @@ class _prodDescriptionState extends State<prodDescription> {
      super.dispose();
      _timer.cancel();
    }
+
+  Future getViewsAndAdds() async{
+     String date = formatDate(DateTime.now(), [yyyy,'-',mm,'-',dd]);
+     DocumentSnapshot ds = await Firestore.instance.collection('views').document(widget.post.documentID).get();
+     if(ds.data==null){
+       myMap[date]=[1,0];
+       addViewsAndPurchases(0);
+       return 0;
+     }
+     myMap=ds.data['Map'];
+     if(myMap[date]==null)
+      myMap[date]=[0,0];
+     keys=myMap.keys.toList()..sort();
+     for (int i = 0; i < keys.length; i++) {
+       visitCount.add((myMap[keys[i]][0]).toDouble());
+       addCount.add((myMap[keys[i]][1]).toDouble());
+       labels.add((formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd, ' ', M, yy])).toString());
+       productData.add(ProductData(labels[i], visitCount[i], addCount[i]));
+     }
+    series = [
+      charts.Series(
+        id: 'Visits',
+        colorFn: (_,__) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (ProductData visits, _) => visits.date,
+        measureFn: (ProductData visits, _) => visits.visits,
+        data: productData
+      ),
+      charts.Series(
+        id: 'Adds',
+        colorFn: (_,__) => charts.MaterialPalette.green.shadeDefault,
+        domainFn: (ProductData adds, _) => adds.date,
+        measureFn: (ProductData adds, _) => adds.adds,
+        data: productData
+      ),
+    ];
+    setState((){});
+    print(date);
+    print(myMap[date]);
+    if(widget.userpost.data['Admin']!=1){
+      myMap[date][0]+=1;
+      addViewsAndPurchases(1);
+    }
+    //addViewsAndAdds();
+    //print(formatDate(DateTime.now(), [MM, ', ',dd, ', ', yyyy]));
+   }
+
+  Future addViewsAndPurchases(int val) async{
+    if(val==1){
+      await Firestore.instance.collection('views').document(widget.post.documentID).updateData({
+     'Map': myMap 
+    });
+    }
+    else{
+      await Firestore.instance.collection('views').document(widget.post.documentID).setData({
+     'Map': myMap 
+    });
+    }
+    
+  }
 
    Future getImage() async{
     File newFile;
@@ -333,6 +410,8 @@ class _prodDescriptionState extends State<prodDescription> {
 
    void addSnackBar(String text) async{
      add2cart(widget.post, widget.email);
+     myMap[date][1]+=1;
+     addViewsAndPurchases(1);
       _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text,
      style: TextStyle(color: Colors.white),), 
      backgroundColor: Colors.green, 
@@ -798,6 +877,37 @@ class _prodDescriptionState extends State<prodDescription> {
                       ]),
                  )
                  )),
+                 widget.userpost.data['Admin']==1? Padding(
+                  padding: const EdgeInsets.only(top:20),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/1.05,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(colors: [Color(0xffddd6f3 ), Color(0xfffaaca8)])
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
+                          child: Container(
+                            height: 40, width: 300,
+                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(20)),
+                            child: Center(
+                              child: Text('Views and Purchase Analysis', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w600,))
+                            )
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
+                          child: Container(
+                            height: 200, width: 340,
+                            child: charts.BarChart(series)
+                          )
+                        ),
+                      ],
+                    )
+                  )
+                ) : Container(),
                Padding(
                   padding: const EdgeInsets.only(top: 30, bottom:20),
                   child: Container(
@@ -824,4 +934,11 @@ class _prodDescriptionState extends State<prodDescription> {
       ),
     );
   }
+}
+
+class ProductData{
+  String date;
+  double visits;
+  double adds;
+  ProductData(this.date, this.visits, this.adds);
 }
