@@ -1197,7 +1197,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                               child: graph
                                                   ? charts.OrdinalComboChart(
                                                       series,
-                                                      animate: false,
+                                                      animate: true,
                                                       primaryMeasureAxis: new charts
                                                               .NumericAxisSpec(
                                                           renderSpec: new charts
