@@ -432,7 +432,7 @@ class _listPageState extends State<listPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
           content: Text('Do you wish to log out?'),
           actions: <Widget>[
-            FlatButton(child: Text('Yes'), onPressed: () => login(),),
+            FlatButton(child: Text('Yes'), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => login()))),
             FlatButton(child: Text('No'), onPressed: () => Navigator.pop(c, false))
           ],
          )
