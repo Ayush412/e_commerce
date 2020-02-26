@@ -48,7 +48,10 @@ class _prodDescriptionState extends State<prodDescription> {
   int rate4 = 0;
   int rate5 = 0;
   int totalVotes = 0;
-  int views;
+  int views = 0;
+  int year = 0;
+  int month = 0;
+  int day = 0;
   double oplevel = 0;
   double userRate;
   double newUserRate = 0;
@@ -67,6 +70,7 @@ class _prodDescriptionState extends State<prodDescription> {
   Timer _timer;
   bool editOK = true;
   bool changed = false;
+  bool graph;
   String name;
   String cost;
   String desc;
@@ -86,8 +90,9 @@ class _prodDescriptionState extends State<prodDescription> {
 
   @override
   void initState() {
-    date = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]);
     super.initState();
+    date = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]);
+    graph=false;
     visitCount = [];
     addCount = [];
     keys = [];
@@ -135,6 +140,9 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   Future getViewsAndAdds() async {
+    setState(() {
+      graph=false;
+    });
     DocumentSnapshot ds = await Firestore.instance
         .collection('views')
         .document(widget.post.documentID)
@@ -142,8 +150,7 @@ class _prodDescriptionState extends State<prodDescription> {
     if (ds.data == null) {
       myMap[date] = [0, 0];
       addViewsAndPurchases(0);
-    } 
-    else {
+    } else {
       myMap = ds.data['Map'];
       if (myMap[date] == null) {
         myMap[date] = [0, 0];
@@ -158,6 +165,11 @@ class _prodDescriptionState extends State<prodDescription> {
     for (int i = 0; i < keys.length; i++) {
       visitCount.add((myMap[keys[i]][0]).toDouble());
       addCount.add((myMap[keys[i]][1]).toDouble());
+      year =
+          int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [yyyy]));
+      month =
+          int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [mm]));
+      day = int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd]));
       labels.add(
           (formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd, ' ', M, yy]))
               .toString());
@@ -165,19 +177,21 @@ class _prodDescriptionState extends State<prodDescription> {
     }
     series = [
       charts.Series(
-          id: 'Visits',
+          id: 'Views',
           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
           domainFn: (ProductData visits, _) => visits.date,
           measureFn: (ProductData visits, _) => visits.visits,
           data: productData),
       charts.Series(
-          id: 'Adds',
+          id: 'Purchases',
           colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
           domainFn: (ProductData adds, _) => adds.date,
           measureFn: (ProductData adds, _) => adds.adds,
           data: productData),
     ];
-    setState(() {});
+    setState(() {
+      graph=true;
+    });
   }
 
   Future addViewsAndPurchases(int val) async {
@@ -1184,7 +1198,42 @@ class _prodDescriptionState extends State<prodDescription> {
                                           child: Container(
                                               height: 200,
                                               width: 340,
-                                              child: charts.BarChart(series))),
+                                              child: graph? charts.OrdinalComboChart(
+                                                  series,
+                                                  animate: false,
+                                                  primaryMeasureAxis: new charts.NumericAxisSpec(
+                                                    renderSpec: new charts.GridlineRendererSpec(
+                                                      labelStyle: new charts.TextStyleSpec(
+                                                        fontSize: 15, 
+                                                        color: charts.MaterialPalette.black
+                                                      ),
+                                                      lineStyle: new charts.LineStyleSpec(
+                                                      color: charts.MaterialPalette.white)
+                                                    )
+                                                  ),
+                                                  domainAxis: new charts.OrdinalAxisSpec(
+                                                    renderSpec: charts.SmallTickRendererSpec(
+                                                    labelStyle: new charts.TextStyleSpec(
+                                                        fontSize: 15,
+                                                        
+                                                        color: charts.MaterialPalette.black),
+                                                    lineStyle: new charts.LineStyleSpec(
+                                                        color: charts.MaterialPalette.black)),
+                                                    viewport: new charts.OrdinalViewport(labels[labels.length-1], 4),
+                                                  ),
+                                                  behaviors: [
+                                                    charts.SlidingViewport(),
+                                                    charts.PanAndZoomBehavior(),
+                                                    charts.SeriesLegend()
+                                                  ],
+                                                  defaultRenderer:
+                                                      charts.LineRendererConfig(
+                                                          customRendererId:
+                                                              'customLine'
+                                                      )
+                                              ) : Container(height: 30, width:30, child: CircularProgressIndicator())
+                                          )
+                                      ),
                                     ],
                                   )))
                           : Container(),
