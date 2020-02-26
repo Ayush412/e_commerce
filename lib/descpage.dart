@@ -49,9 +49,6 @@ class _prodDescriptionState extends State<prodDescription> {
   int rate5 = 0;
   int totalVotes = 0;
   int views = 0;
-  int year = 0;
-  int month = 0;
-  int day = 0;
   double oplevel = 0;
   double userRate;
   double newUserRate = 0;
@@ -80,8 +77,8 @@ class _prodDescriptionState extends State<prodDescription> {
   var value;
   var keys;
   List<charts.Series<ProductData, String>> series;
-  List<double> visitCount = List<double>();
-  List<double> addCount = List<double>();
+  List<int> visitCount = List<int>();
+  List<int> addCount = List<int>();
   List<String> test = List<String>();
   List<String> labels = List<String>();
   List<ProductData> productData = List<ProductData>();
@@ -109,7 +106,6 @@ class _prodDescriptionState extends State<prodDescription> {
     rate3 = data.data['3 Star'];
     rate4 = data.data['4 Star'];
     rate5 = data.data['5 Star'];
-    views = data.data['Views'];
     url = data.data['imgurl'];
     totalVotes = rate1 + rate2 + rate3 + rate4 + rate5;
     totalVotes == 0
@@ -163,13 +159,9 @@ class _prodDescriptionState extends State<prodDescription> {
     }
     keys = myMap.keys.toList()..sort();
     for (int i = 0; i < keys.length; i++) {
-      visitCount.add((myMap[keys[i]][0]).toDouble());
-      addCount.add((myMap[keys[i]][1]).toDouble());
-      year =
-          int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [yyyy]));
-      month =
-          int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [mm]));
-      day = int.parse(formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd]));
+      visitCount.add((myMap[keys[i]][0]));
+      addCount.add((myMap[keys[i]][1]));
+      views+=visitCount[i];
       labels.add(
           (formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd, ' ', M, yy]))
               .toString());
@@ -191,6 +183,9 @@ class _prodDescriptionState extends State<prodDescription> {
     ];
     setState(() {
       graph=true;
+    });
+    setState(() {
+      
     });
   }
 
@@ -337,7 +332,6 @@ class _prodDescriptionState extends State<prodDescription> {
         rate3 = data.data['3 Star'];
         rate4 = data.data['4 Star'];
         rate5 = data.data['5 Star'];
-        views = data.data['Views'];
         totalVotes = rate1 + rate2 + rate3 + rate4 + rate5;
         totalVotes == 0
             ? totalRate = 0
@@ -1284,7 +1278,7 @@ class _prodDescriptionState extends State<prodDescription> {
 
 class ProductData {
   String date;
-  double visits;
-  double adds;
+  int visits;
+  int adds;
   ProductData(this.date, this.visits, this.adds);
 }
