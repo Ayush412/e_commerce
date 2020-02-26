@@ -66,6 +66,7 @@ class _prodDescriptionState extends State<prodDescription> {
   FocusNode node3 = FocusNode();
   FocusNode node4 = FocusNode();
   Timer _timer;
+  Timer _timer2;
   bool editOK = true;
   bool changed = false;
   bool graph = false;
@@ -123,13 +124,9 @@ class _prodDescriptionState extends State<prodDescription> {
     descController.text = desc;
     if (!widget.list.contains(widget.post.documentID) &&
         widget.userpost.data['Admin'] != 1) addView();
-    _timer = new Timer(const Duration(milliseconds: 300), () {
+    _timer = new Timer(const Duration(milliseconds: 400), () {
       setState(() {
         oplevel = 1;
-      });
-    });
-    _timer = new Timer(const Duration(milliseconds: 800), () {
-      setState(() {
         viewOplevel = 1;
       });
     });
@@ -139,6 +136,7 @@ class _prodDescriptionState extends State<prodDescription> {
   void dispose() {
     super.dispose();
     _timer.cancel();
+    _timer2.cancel();
   }
 
   Future getViewsAndAdds() async {
@@ -190,7 +188,6 @@ class _prodDescriptionState extends State<prodDescription> {
     setState(() {
       graph = true;
     });
-    setState(() {});
   }
 
   Future addViewsAndPurchases() async {
@@ -1228,13 +1225,11 @@ class _prodDescriptionState extends State<prodDescription> {
                                                                     .MaterialPalette
                                                                     .black)),
                                                         viewport: new charts
-                                                                .OrdinalViewport(
-                                                            labels[
-                                                                labels.length -
-                                                                    1],
-                                                            4),
+                                                                .OrdinalViewport(labels[labels.length -1],4),
                                                       ),
-                                                      behaviors: [charts.SlidingViewport(), charts.PanAndZoomBehavior(), charts.SeriesLegend()],
+                                                      behaviors: [charts.SlidingViewport(), 
+                                                        charts.PanAndZoomBehavior(), 
+                                                        charts.SeriesLegend()],
                                                       defaultRenderer: charts.LineRendererConfig(customRendererId: 'customLine'))
                                                   : Container(height: 30, width: 30, child: CircularProgressIndicator()))),
                                     ],
