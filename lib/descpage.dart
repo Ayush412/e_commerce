@@ -140,22 +140,22 @@ class _prodDescriptionState extends State<prodDescription> {
       graph=false;
     });
     DocumentSnapshot ds = await Firestore.instance
-        .collection('views')
+        .collection('products')
         .document(widget.post.documentID)
         .get();
-    if (ds.data == null) {
+    if (ds.data['Map'] == null) {
       myMap[date] = [0, 0];
-      addViewsAndPurchases(0);
+      addViewsAndPurchases();
     } else {
       myMap = ds.data['Map'];
       if (myMap[date] == null) {
         myMap[date] = [0, 0];
-        addViewsAndPurchases(1);
+        addViewsAndPurchases();
       }
     }
     if (widget.userpost.data['Admin'] != 1) {
       myMap[date][0] += 1;
-      addViewsAndPurchases(1);
+      addViewsAndPurchases();
     }
     keys = myMap.keys.toList()..sort();
     for (int i = 0; i < keys.length; i++) {
@@ -189,18 +189,11 @@ class _prodDescriptionState extends State<prodDescription> {
     });
   }
 
-  Future addViewsAndPurchases(int val) async {
-    if (val == 1) {
+  Future addViewsAndPurchases() async {
       await Firestore.instance
-          .collection('views')
+          .collection('products')
           .document(widget.post.documentID)
           .updateData({'Map': myMap});
-    } else {
-      await Firestore.instance
-          .collection('views')
-          .document(widget.post.documentID)
-          .setData({'Map': myMap});
-    }
   }
 
   Future getImage() async {
@@ -484,7 +477,7 @@ class _prodDescriptionState extends State<prodDescription> {
     if(val==1){
       add2cart(widget.post, widget.email);
       myMap[date][1] += 1;
-      addViewsAndPurchases(1);
+      addViewsAndPurchases();
        _timer = new Timer(const Duration(milliseconds: 800), () {
       getCartCount();
     });
