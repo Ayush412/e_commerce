@@ -483,13 +483,18 @@ class _prodDescriptionState extends State<prodDescription> {
     });
     refreshRate();
     pr.hide();
-    addSnackBar('Changes saved!');
+    addSnackBar('Changes saved!', 0);
   }
 
-  void addSnackBar(String text) async {
-    add2cart(widget.post, widget.email);
-    myMap[date][1] += 1;
-    addViewsAndPurchases(1);
+  void addSnackBar(String text, int val) async {
+    if(val==1){
+      add2cart(widget.post, widget.email);
+      myMap[date][1] += 1;
+      addViewsAndPurchases(1);
+       _timer = new Timer(const Duration(milliseconds: 800), () {
+      getCartCount();
+    });
+    }
     _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
           text,
@@ -500,9 +505,6 @@ class _prodDescriptionState extends State<prodDescription> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30), topRight: Radius.circular(30)))));
-    _timer = new Timer(const Duration(milliseconds: 800), () {
-      getCartCount();
-    });
   }
 
   void emptySnackBar() {
@@ -1249,7 +1251,7 @@ class _prodDescriptionState extends State<prodDescription> {
                             onTap: () => widget.userpost.data['Admin'] == 1
                                 ? warning()
                                 : stock > 0
-                                    ? addSnackBar('Item added!')
+                                    ? addSnackBar('Item added!', 1)
                                     : emptySnackBar(),
                             child: Card(
                                 shape: RoundedRectangleBorder(
