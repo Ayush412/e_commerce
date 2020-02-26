@@ -50,6 +50,7 @@ class _prodDescriptionState extends State<prodDescription> {
   int totalVotes = 0;
   int views = 0;
   double oplevel = 0;
+  double viewOplevel = 0;
   double userRate;
   double newUserRate = 0;
   double totalRate = 0;
@@ -67,7 +68,7 @@ class _prodDescriptionState extends State<prodDescription> {
   Timer _timer;
   bool editOK = true;
   bool changed = false;
-  bool graph;
+  bool graph = false;
   String name;
   String cost;
   String desc;
@@ -89,7 +90,7 @@ class _prodDescriptionState extends State<prodDescription> {
   void initState() {
     super.initState();
     date = formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]);
-    graph=false;
+    graph = false;
     visitCount = [];
     addCount = [];
     keys = [];
@@ -127,6 +128,11 @@ class _prodDescriptionState extends State<prodDescription> {
         oplevel = 1;
       });
     });
+    _timer = new Timer(const Duration(milliseconds: 800), () {
+      setState(() {
+        viewOplevel = 1;
+      });
+    });
   }
 
   @override
@@ -137,7 +143,7 @@ class _prodDescriptionState extends State<prodDescription> {
 
   Future getViewsAndAdds() async {
     setState(() {
-      graph=false;
+      graph = false;
     });
     DocumentSnapshot ds = await Firestore.instance
         .collection('products')
@@ -161,7 +167,7 @@ class _prodDescriptionState extends State<prodDescription> {
     for (int i = 0; i < keys.length; i++) {
       visitCount.add((myMap[keys[i]][0]));
       addCount.add((myMap[keys[i]][1]));
-      views+=visitCount[i];
+      views += visitCount[i];
       labels.add(
           (formatDate(DateTime.parse('${keys[i]} 00:00:00'), [dd, ' ', M, yy]))
               .toString());
@@ -182,18 +188,16 @@ class _prodDescriptionState extends State<prodDescription> {
           data: productData),
     ];
     setState(() {
-      graph=true;
+      graph = true;
     });
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   Future addViewsAndPurchases() async {
-      await Firestore.instance
-          .collection('products')
-          .document(widget.post.documentID)
-          .updateData({'Map': myMap});
+    await Firestore.instance
+        .collection('products')
+        .document(widget.post.documentID)
+        .updateData({'Map': myMap});
   }
 
   Future getImage() async {
@@ -474,13 +478,13 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   void addSnackBar(String text, int val) async {
-    if(val==1){
+    if (val == 1) {
       add2cart(widget.post, widget.email);
       myMap[date][1] += 1;
       addViewsAndPurchases();
-       _timer = new Timer(const Duration(milliseconds: 800), () {
-      getCartCount();
-    });
+      _timer = new Timer(const Duration(milliseconds: 800), () {
+        getCartCount();
+      });
     }
     _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
@@ -532,6 +536,7 @@ class _prodDescriptionState extends State<prodDescription> {
   goBack(int val) {
     setState(() {
       oplevel = 0;
+      viewOplevel = 0;
     });
     if (changed)
       Navigator.push(
@@ -911,19 +916,20 @@ class _prodDescriptionState extends State<prodDescription> {
                               alignment: Alignment.centerRight,
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 15),
-                                child: Container(
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                      color: Color(0xffffc966),
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 3),
-                                    child: AnimatedOpacity(
-                                      duration: Duration(milliseconds: 500),
-                                      opacity: oplevel,
+                                child: AnimatedOpacity(
+                                  duration: Duration(milliseconds: 500),
+                                  opacity: viewOplevel,
+                                  child: Container(
+                                    height: 25,
+                                    decoration: BoxDecoration(
+                                        color: Color(0xffffc966),
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10, top: 3),
                                       child: Text(
-                                          views == null
+                                          views == 0
                                               ? 'No views'
                                               : views == 1
                                                   ? "$views view"
@@ -1191,42 +1197,46 @@ class _prodDescriptionState extends State<prodDescription> {
                                           child: Container(
                                               height: 200,
                                               width: 340,
-                                              child: graph? charts.OrdinalComboChart(
-                                                  series,
-                                                  animate: false,
-                                                  primaryMeasureAxis: new charts.NumericAxisSpec(
-                                                    renderSpec: new charts.GridlineRendererSpec(
-                                                      labelStyle: new charts.TextStyleSpec(
-                                                        fontSize: 15, 
-                                                        color: charts.MaterialPalette.black
+                                              child: graph
+                                                  ? charts.OrdinalComboChart(
+                                                      series,
+                                                      animate: false,
+                                                      primaryMeasureAxis: new charts
+                                                              .NumericAxisSpec(
+                                                          renderSpec: new charts
+                                                                  .GridlineRendererSpec(
+                                                              labelStyle: new charts.TextStyleSpec(
+                                                                  fontSize: 15,
+                                                                  color: charts
+                                                                      .MaterialPalette
+                                                                      .black),
+                                                              lineStyle: new charts.LineStyleSpec(
+                                                                  color: charts
+                                                                      .MaterialPalette
+                                                                      .white))),
+                                                      domainAxis: new charts.OrdinalAxisSpec(
+                                                        renderSpec: charts.SmallTickRendererSpec(
+                                                            labelStyle: new charts
+                                                                    .TextStyleSpec(
+                                                                fontSize: 15,
+                                                                color: charts
+                                                                    .MaterialPalette
+                                                                    .black),
+                                                            lineStyle: new charts
+                                                                    .LineStyleSpec(
+                                                                color: charts
+                                                                    .MaterialPalette
+                                                                    .black)),
+                                                        viewport: new charts
+                                                                .OrdinalViewport(
+                                                            labels[
+                                                                labels.length -
+                                                                    1],
+                                                            4),
                                                       ),
-                                                      lineStyle: new charts.LineStyleSpec(
-                                                      color: charts.MaterialPalette.white)
-                                                    )
-                                                  ),
-                                                  domainAxis: new charts.OrdinalAxisSpec(
-                                                    renderSpec: charts.SmallTickRendererSpec(
-                                                    labelStyle: new charts.TextStyleSpec(
-                                                        fontSize: 15,
-                                                        
-                                                        color: charts.MaterialPalette.black),
-                                                    lineStyle: new charts.LineStyleSpec(
-                                                        color: charts.MaterialPalette.black)),
-                                                    viewport: new charts.OrdinalViewport(labels[labels.length-1], 4),
-                                                  ),
-                                                  behaviors: [
-                                                    charts.SlidingViewport(),
-                                                    charts.PanAndZoomBehavior(),
-                                                    charts.SeriesLegend()
-                                                  ],
-                                                  defaultRenderer:
-                                                      charts.LineRendererConfig(
-                                                          customRendererId:
-                                                              'customLine'
-                                                      )
-                                              ) : Container(height: 30, width:30, child: CircularProgressIndicator())
-                                          )
-                                      ),
+                                                      behaviors: [charts.SlidingViewport(), charts.PanAndZoomBehavior(), charts.SeriesLegend()],
+                                                      defaultRenderer: charts.LineRendererConfig(customRendererId: 'customLine'))
+                                                  : Container(height: 30, width: 30, child: CircularProgressIndicator()))),
                                     ],
                                   )))
                           : Container(),
