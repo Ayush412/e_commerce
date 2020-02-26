@@ -1173,7 +1173,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                                     BorderRadius.circular(20)),
                                             child: Center(
                                                 child: Text(
-                                                    'Views and Purchase Analysis',
+                                                    'Views and Purchase Analytics',
                                                     style: TextStyle(
                                                       fontSize: 20,
                                                       color: Colors.white,
