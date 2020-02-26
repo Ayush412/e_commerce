@@ -919,16 +919,20 @@ class _prodDescriptionState extends State<prodDescription> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(
                                         left: 10, right: 10, top: 3),
-                                    child: Text(
-                                        views == null
-                                            ? 'No views'
-                                            : views == 1
-                                                ? "$views view"
-                                                : '$views views',
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black)),
+                                    child: AnimatedOpacity(
+                                      duration: Duration(milliseconds: 500),
+                                      opacity: oplevel,
+                                      child: Text(
+                                          views == null
+                                              ? 'No views'
+                                              : views == 1
+                                                  ? "$views view"
+                                                  : '$views views',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black)),
+                                    ),
                                   ),
                                 ),
                               )),
