@@ -15,6 +15,9 @@ import 'mycart.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:date_format/date_format.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'reviews.dart';
+import 'userReview.dart';
+GlobalKey<userReviewState> globalKey = GlobalKey();
 
 class prodDescription extends StatefulWidget {
   int counter;
@@ -55,6 +58,7 @@ class _prodDescriptionState extends State<prodDescription> {
   double newUserRate = 0;
   double totalRate = 0;
   DocumentSnapshot data;
+  DocumentSnapshot reviewData;
   StorageReference storageRef;
   ProgressDialog pr;
   TextEditingController stockController = TextEditingController();
@@ -272,6 +276,10 @@ class _prodDescriptionState extends State<prodDescription> {
         '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1),
       });
     }
+    await Firestore.instance.collection('products/${widget.post.documentID}/Reviews').document(widget.userpost.documentID).updateData({
+      'Rate': newUserRate
+    });
+    globalKey.currentState.userRate=newUserRate;
     await refreshRate();
   }
 
@@ -848,8 +856,10 @@ class _prodDescriptionState extends State<prodDescription> {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           home: Scaffold(
-              key: _scaffoldKey,
+              extendBodyBehindAppBar: true,
               backgroundColor: Colors.white,
+              key: _scaffoldKey,
+              //backgroundColor: Colors.white,
               appBar: AppBar(
                   centerTitle: true,
                   shape: RoundedRectangleBorder(
@@ -897,7 +907,7 @@ class _prodDescriptionState extends State<prodDescription> {
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: const EdgeInsets.only(top: 25, bottom: 10),
+                        padding: const EdgeInsets.only(top: 100, bottom: 10),
                         child: Hero(
                             tag: widget.tag.contains('card')
                                 ? 'card${widget.post.documentID}'
@@ -1148,10 +1158,25 @@ class _prodDescriptionState extends State<prodDescription> {
                                               ),
                                             ],
                                           )),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                      )
+                                          Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 30, left: 10, right:10),
+                                           child: userReview(userpost: widget.userpost, docID: widget.post.documentID, key: globalKey)
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 30, left: 10),
+                                                child: Text('Reviews:',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 23))
+                                          ),
+                                          Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 15, left: 10, right:10),
+                                           child: reviews(docID: widget.post.documentID)
+                                          ),
                                     ]),
                               ))),
                       widget.userpost.data['Admin'] == 1
@@ -1162,10 +1187,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                       MediaQuery.of(context).size.width / 1.05,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(20),
-                                      gradient: LinearGradient(colors: [
-                                        Color(0xffddd6f3),
-                                        Color(0xfffaaca8)
-                                      ])),
+                                      color: Colors.black),
                                   child: Column(
                                     children: <Widget>[
                                       Padding(
@@ -1175,7 +1197,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                             height: 40,
                                             width: 300,
                                             decoration: BoxDecoration(
-                                                color: Colors.black,
+                                                color: Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(20)),
                                             child: Center(
@@ -1183,7 +1205,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                                     'Views and Purchase Analytics',
                                                     style: TextStyle(
                                                       fontSize: 20,
-                                                      color: Colors.white,
+                                                      color: Colors.black,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     )))),
@@ -1192,46 +1214,76 @@ class _prodDescriptionState extends State<prodDescription> {
                                           padding: const EdgeInsets.only(
                                               top: 20, bottom: 20),
                                           child: Container(
-                                              height: 200,
+                                              height: 280,
                                               width: 340,
                                               child: graph
                                                   ? charts.OrdinalComboChart(
                                                       series,
                                                       animate: true,
-                                                      primaryMeasureAxis: new charts
-                                                              .NumericAxisSpec(
-                                                          renderSpec: new charts
-                                                                  .GridlineRendererSpec(
+                                                      primaryMeasureAxis: new charts.NumericAxisSpec(
+                                                          renderSpec: new charts.GridlineRendererSpec(
                                                               labelStyle: new charts.TextStyleSpec(
                                                                   fontSize: 15,
                                                                   color: charts
                                                                       .MaterialPalette
-                                                                      .black),
+                                                                      .white),
                                                               lineStyle: new charts.LineStyleSpec(
                                                                   color: charts
                                                                       .MaterialPalette
                                                                       .white))),
-                                                      domainAxis: new charts.OrdinalAxisSpec(
+                                                      domainAxis: new charts
+                                                          .OrdinalAxisSpec(
                                                         renderSpec: charts.SmallTickRendererSpec(
                                                             labelStyle: new charts
                                                                     .TextStyleSpec(
                                                                 fontSize: 15,
                                                                 color: charts
                                                                     .MaterialPalette
-                                                                    .black),
+                                                                    .white),
                                                             lineStyle: new charts
                                                                     .LineStyleSpec(
                                                                 color: charts
                                                                     .MaterialPalette
-                                                                    .black)),
+                                                                    .white)),
                                                         viewport: new charts
-                                                                .OrdinalViewport(labels[labels.length -1],4),
+                                                                .OrdinalViewport(
+                                                            labels[
+                                                                labels.length -
+                                                                    1],
+                                                            3),
                                                       ),
-                                                      behaviors: [charts.SlidingViewport(), 
-                                                        charts.PanAndZoomBehavior(), 
-                                                        charts.SeriesLegend()],
-                                                      defaultRenderer: charts.LineRendererConfig(customRendererId: 'customLine'))
-                                                  : Container(height: 30, width: 30, child: CircularProgressIndicator()))),
+                                                      behaviors: [
+                                                        charts
+                                                            .SlidingViewport(),
+                                                        charts
+                                                            .PanAndZoomBehavior(),
+                                                        charts.SeriesLegend(
+                                                            entryTextStyle: charts
+                                                                .TextStyleSpec(
+                                                                    color: charts.Color(
+                                                                        r: 255,
+                                                                        g: 255,
+                                                                        b: 255))),
+                                                        charts.ChartTitle(
+                                                            'Count vs Date',
+                                                            innerPadding: 20,
+                                                            titleStyleSpec: charts
+                                                                .TextStyleSpec(
+                                                                    color: charts.Color(
+                                                                        r: 121,
+                                                                        g: 121,
+                                                                        b:
+                                                                            121)),
+                                                            behaviorPosition: charts
+                                                                .BehaviorPosition
+                                                                .bottom,
+                                                            titleOutsideJustification: charts
+                                                                .OutsideJustification
+                                                                .middleDrawArea),
+                                                      ],
+                                                      defaultRenderer:
+                                                          charts.LineRendererConfig(customRendererId: 'customLine'))
+                                                  : Center(child: Container(height: 40, width: 40, child: CircularProgressIndicator())))),
                                     ],
                                   )))
                           : Container(),
