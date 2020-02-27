@@ -22,7 +22,7 @@ class _reviewsState extends State<reviews> {
   void initState() {
     super.initState();
     getReviews();
-    height=150;
+    height=170;
     controller.addListener(() {
       double maxScroll = controller.position.maxScrollExtent;
       double currentScroll = controller.position.pixels;
@@ -53,7 +53,6 @@ class _reviewsState extends State<reviews> {
 
   Future getNextReviews() async{
     if(moreDocsLeft == false){
-      print('no more');
       return;
     }
     if(moreLoading == true){
