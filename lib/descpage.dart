@@ -868,7 +868,6 @@ class _prodDescriptionState extends State<prodDescription> {
               extendBodyBehindAppBar: true,
               backgroundColor: Colors.white,
               key: _scaffoldKey,
-              //backgroundColor: Colors.white,
               appBar: AppBar(
                   centerTitle: true,
                   shape: RoundedRectangleBorder(
@@ -1183,7 +1182,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                           ),
                                           Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 15, left: 10, right:10),
+                                              top: 15, left: 10, right:10, bottom: 15),
                                            child: reviews(docID: widget.post.documentID)
                                           ),
                                     ]),
