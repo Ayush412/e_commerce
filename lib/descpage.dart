@@ -276,9 +276,12 @@ class _prodDescriptionState extends State<prodDescription> {
         '${oldRate.toStringAsFixed(0)} Star': FieldValue.increment(-1),
       });
     }
-    await Firestore.instance.collection('products/${widget.post.documentID}/Reviews').document(widget.userpost.documentID).updateData({
+    try {await Firestore.instance.collection('products/${widget.post.documentID}/Reviews').document(widget.userpost.documentID).updateData({
       'Rate': newUserRate
     });
+    }catch(e){
+      print(e);
+    }
     globalKey.currentState.userRate=newUserRate;
     await refreshRate();
   }
@@ -995,7 +998,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                                               left: 90),
                                                       child: stars(
                                                           25,
-                                                          totalRate,
+                                                          totalRate.round().toDouble(),
                                                           5,
                                                           Color(0xFFe8b430)),
                                                     ),
