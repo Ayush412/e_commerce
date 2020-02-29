@@ -70,7 +70,6 @@ class _prodDescriptionState extends State<prodDescription> {
   FocusNode node3 = FocusNode();
   FocusNode node4 = FocusNode();
   Timer _timer;
-  Timer _timer2;
   bool editOK = true;
   bool changed = false;
   bool graph = false;
@@ -140,7 +139,6 @@ class _prodDescriptionState extends State<prodDescription> {
   void dispose() {
     super.dispose();
     _timer.cancel();
-    _timer2.cancel();
   }
 
   Future getViewsAndAdds() async {
