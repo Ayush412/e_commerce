@@ -82,7 +82,7 @@ class _prodDescriptionState extends State<prodDescription> {
   String date;
   var value;
   var keys;
-  List<charts.Series<ProductData, String>> series;
+  List<charts.Series<ProductData, String>> series = List<charts.Series<ProductData, String>>();
   List<int> visitCount = List<int>();
   List<int> addCount = List<int>();
   List<String> test = List<String>();
