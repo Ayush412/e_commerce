@@ -1167,7 +1167,7 @@ class _prodDescriptionState extends State<prodDescription> {
                                               ),
                                             ],
                                           )),
-                                          Padding(
+                                          widget.userpost.data['Admin']==1 ? Container() : Padding(
                                           padding: const EdgeInsets.only(
                                               top: 30, left: 10, right:10),
                                            child: userReview(userpost: widget.userpost, docID: widget.post.documentID, key: globalKey)
