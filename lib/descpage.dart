@@ -590,8 +590,10 @@ class _prodDescriptionState extends State<prodDescription> {
   }
 
   giveRating(int val) {
+    bool enter = true;
     return showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (c) => StatefulBuilder(builder: (context, setState) {
               return AlertDialog(
                 title: Row(children: <Widget>[
@@ -600,7 +602,7 @@ class _prodDescriptionState extends State<prodDescription> {
                     padding: const EdgeInsets.only(left: 122),
                     child: IconButton(
                       icon: Icon(Icons.close),
-                      onPressed: () => Navigator.pop(c, false),
+                      onPressed: (){enter = false; Navigator.pop(c, false);},
                     ),
                   )
                 ]),
@@ -634,7 +636,11 @@ class _prodDescriptionState extends State<prodDescription> {
                 actions: <Widget>[
                   FlatButton(
                       child: Text('Ok'),
-                      onPressed: () => setUserRating(newUserRate.toInt(), val))
+                      onPressed: () =>{
+                        if (enter) 
+                        setUserRating(newUserRate.toInt(), val)
+                      }
+                  )
                 ],
               );
             }));
