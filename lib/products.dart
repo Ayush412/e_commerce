@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce/analytics.dart';
 import 'package:flutter/material.dart';
 import 'descpage.dart';
 import 'dart:async';
@@ -300,7 +301,7 @@ class _listPageState extends State<listPage> {
                     ),
                 ),
               ),
-              admin==1 ? Container() : Padding(
+              Padding(
                 padding: const EdgeInsets.only(top: 25.0),
                 child: Container(
                       width:250,
@@ -308,17 +309,18 @@ class _listPageState extends State<listPage> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
                         splashColor: Colors.grey,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))),
+                        onTap: () => admin== 1? Navigator.push(context, MaterialPageRoute(builder: (context) => analytics()))
+                        : Navigator.push(context, MaterialPageRoute(builder: (context) => mycart(userpost: widget.post, email: widget.post.documentID, counter: _counter,))),
                         child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       color: Colors.black,
                       child: Stack(
                         children: <Widget>[
-                        Center(child: Text('Cart', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),)),
+                        Center(child: Text(admin==1? 'Analytics' : 'Cart', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),)),
                         Positioned(
                           left:17,
                           top:14,
-                          child: Icon(Icons.shopping_cart, color: Colors.grey,),)
+                          child: Icon(admin==1? Icons.insert_chart :Icons.shopping_cart, color: Colors.grey,),)
                         ]
                         )
                         ),
@@ -361,7 +363,7 @@ class _listPageState extends State<listPage> {
                   ),
                 ),
               Padding(
-                padding: admin==1? const EdgeInsets.only(top:295) : const EdgeInsets.only(top:180),
+                padding:const EdgeInsets.only(top:180),
                 child: Container(
                       alignment: Alignment.bottomCenter,
                       width:180,
