@@ -1,4 +1,4 @@
-import 'package:date_format/date_format.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -15,6 +15,7 @@ class _analyticsState extends State<analytics> {
   int electronics=0;
   int fashion=0;
   int catTot=0;
+  Timer _timer;
   ProgressDialog pr;
   List<charts.Series<CategoryData, String>> catSeries = List<charts.Series<CategoryData, String>>();
   List<charts.Series<CategoryData, String>> fashSubcatSeries = List<charts.Series<CategoryData, String>>();
@@ -22,10 +23,21 @@ class _analyticsState extends State<analytics> {
   List<CategoryData> categoryData = List<CategoryData>();
   List fashList = ['Caps', 'Bottoms', 'Eye Wear', 'T-Shirts', 'Watches'];
   List elecList = ['Mobile Phones', 'Games', 'Laptops'];
+
   @override
   void initState() { 
     super.initState();
-    getPieCount();
+    _timer = new Timer(const Duration(milliseconds: 100), () {
+      setState(() {
+        getPieCount();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   Future getViewData(String type, String value) async{
