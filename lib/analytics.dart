@@ -17,12 +17,14 @@ class _analyticsState extends State<analytics> {
   int catTot=0;
   Timer _timer;
   ProgressDialog pr;
+  var keys;
   List<charts.Series<CategoryData, String>> catSeries = List<charts.Series<CategoryData, String>>();
   List<charts.Series<CategoryData, String>> fashSubcatSeries = List<charts.Series<CategoryData, String>>();
   List<charts.Series<CategoryData, String>> elecSubcatSeries = List<charts.Series<CategoryData, String>>();
   List<CategoryData> categoryData = List<CategoryData>();
   List fashList = ['Caps', 'Bottoms', 'Eye Wear', 'T-Shirts', 'Watches'];
   List elecList = ['Mobile Phones', 'Games', 'Laptops'];
+  Map<dynamic, dynamic> myMap = Map<dynamic, dynamic>();
 
   @override
   void initState() { 
@@ -42,10 +44,18 @@ class _analyticsState extends State<analytics> {
 
   Future getViewData(String type, String value) async{
     int count=0;
+    myMap={};
+    keys=[];
     QuerySnapshot fs = await Firestore.instance.collection('products').where('$type', isEqualTo: '$value').getDocuments();
     fs.documents.forEach((f) {
-      if(f.data['Views']!=null)
-      count+=f.data['Views'];
+      print(f.data['Map']);
+      myMap=f.data['Map'];
+      if(myMap!=null){
+        myMap=f.data['Map'];
+        keys = myMap.keys.toList()..sort();
+        for(int i=0; i<keys.length ; i++)
+          count+=myMap[keys[i]][0];
+      }
     });
     categoryData.add(CategoryData(value, count));
     if(type=="SubCategory"){
